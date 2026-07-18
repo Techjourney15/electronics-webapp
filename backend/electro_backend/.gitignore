@@ -5,3 +5,5 @@ venv/
 backend/electro_backend/recommender/similarity_matrix.pkl
 __pycache__/
 *.pyc
+backend/electro_backend/recommender/similarity_matrix.pkl
+backend/.venv/
