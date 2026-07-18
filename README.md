@@ -1,4 +1,4 @@
-# Nexora Dataset - Setup Instructions
+# Dataset - Setup Instructions
 
 ## Files Included
 1. **nexora_electronics_dataset.csv** — 10,000 products (6,000 phones + 4,000 laptops), 28 columns, zero nulls
