@@ -74,9 +74,9 @@ spec_matrix = csr_matrix(spec_vectors)
 # ---------------------------------------------------------
 print("Combining vectors...")
 combined = hstack([
-    text_vectors * 0.3,
-    cat_matrix * 0.3,
-    spec_matrix * 0.4,
+    text_vectors * 0.05,
+    cat_matrix * 0.05,
+    spec_matrix * 0.9,
 ]).tocsr()
 
 # ---------------------------------------------------------

@@ -1,0 +1,13 @@
+{
+  "w_text": 0.05,
+  "w_cat": 0.05,
+  "w_spec": 0.9,
+  "Precision@5": 0.9413333333333332,
+  "Diversity@5": 0.44399999999999995,
+  "Composite": 0.7921333333333332,
+  "alpha": 0.7,
+  "k": 5,
+  "spec_match_ratio": 0.6,
+  "keyword_jaccard_threshold": 0.15,
+  "min_criteria": 2
+}
