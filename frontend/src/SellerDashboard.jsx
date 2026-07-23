@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios"; // API call garna
 
 const API = "http://127.0.0.1:8000/api";
@@ -6,6 +7,7 @@ const MEDIA_BASE = "http://127.0.0.1:8000"; // image ko full url banauna
 
 function SellerDashboard() {
   // product list ra loading state
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]); // dropdown ko lagi
   const [brands, setBrands] = useState([]); // dropdown ko lagi
@@ -203,24 +205,43 @@ function SellerDashboard() {
 
           <div className="space-y-3">
             {browseResults.map((p) => (
-              <div key={p.id} className="flex items-center gap-3 rounded-xl border border-[#E6E1D5]/40 bg-white/50 p-3">
-                {/* product image, thumbnail size */}
-                <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-[#f4eadc]">
-                  {p.image ? (
-                    <img
-                      src={p.image.startsWith("http") ? p.image : `${MEDIA_BASE}${p.image}`}
-                      alt={p.product_name}
-                      className="h-full w-full object-cover"
-                      onError={(e) => { e.target.style.display = 'none'; }}
-                    />
-                  ) : null}
+              <div
+                key={p.id}
+                className="overflow-hidden rounded-2xl border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.86)]"
+              >
+
+                {/* Click ONLY this upper section to open product details */}
+                <div
+                  onClick={() => navigate(`/product/${p.id}`)}
+                  className="flex cursor-pointer items-center gap-3 p-3 hover:bg-[#f9f5ef]"
+                >
+                  <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-[#f4eadc]">
+                    {p.image ? (
+                      <img
+                        src={p.image.startsWith("http") ? p.image : `${MEDIA_BASE}${p.image}`}
+                        alt={p.product_name}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">
+                        No image
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm">{p.product_name}</p>
+                    <p className="text-xs text-slate-600">
+                      Default price: Rs. {p.price_npr}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex-1">
-                  <p className="font-semibold text-sm">{p.product_name}</p>
-                  <p className="text-xs text-slate-600">Default price: Rs. {p.price_npr}</p>
-
-                  {/* claim form — price/stock halera confirm garne */}
+                {/* Claim section */}
+                <div className="px-3 pb-3">
                   {claimingId === p.id ? (
                     <div className="mt-2 flex flex-wrap gap-2">
                       <input
@@ -230,6 +251,7 @@ function SellerDashboard() {
                         onChange={(e) => setClaimPrice(e.target.value)}
                         className="w-32 rounded-lg border border-[#dfd0b8]/70 px-2 py-1.5 text-xs"
                       />
+
                       <input
                         type="number"
                         placeholder="Stock"
@@ -237,6 +259,7 @@ function SellerDashboard() {
                         onChange={(e) => setClaimStock(e.target.value)}
                         className="w-24 rounded-lg border border-[#dfd0b8]/70 px-2 py-1.5 text-xs"
                       />
+
                       <button
                         onClick={() => handleClaim(p.id)}
                         className="rounded-lg bg-[#a17c56] px-3 py-1.5 text-xs font-semibold text-white"
@@ -253,6 +276,7 @@ function SellerDashboard() {
                     </button>
                   )}
                 </div>
+
               </div>
             ))}
           </div>
@@ -334,7 +358,11 @@ function SellerDashboard() {
             {products.map((p) => (
               <div
                 key={p.id}
-                className="overflow-hidden rounded-2xl border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.86)]"
+                onClick={() => {
+                  console.log("Opening product:", p.id);
+                  navigate(`/product/${p.id}`);
+                }}
+                className="cursor-pointer overflow-hidden rounded-2xl border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.86)] transition hover:-translate-y-1 hover:shadow-lg"
               >
                 {/* product ko image */}
                 <div className="aspect-square w-full bg-[#f4eadc]">
@@ -353,8 +381,18 @@ function SellerDashboard() {
                 </div>
                 <div className="p-4">
                   <p className="font-semibold">{p.product_name}</p>
-                  <p className="text-sm text-slate-600">Rs. {p.price_npr}</p>
-                  <p className="text-xs text-slate-500">Stock: {p.stock_quantity}</p>
+
+                  <p className="text-xs text-red-500">
+                    Product ID: {p.id}
+                  </p>
+
+                  <p className="text-sm text-slate-600">
+                    Rs. {p.price_npr}
+                  </p>
+
+                  <p className="text-xs text-slate-500">
+                    Stock: {p.stock_quantity}
+                  </p>
                 </div>
               </div>
             ))}

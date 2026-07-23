@@ -35,15 +35,19 @@ function Preference() {
   const [error, setError] = useState("");
 
   const getBudgetValues = () => {
-    switch (budget) {
-      case "under20":
-        return { min_price: 0, max_price: 20000 };
-      case "20-60":
-        return { min_price: 20000, max_price: 60000 };
-      case "60plus":
-        return { min_price: 60000, max_price: 1000000 };
-      default:
-        return { min_price: 0, max_price: 1000000 };
+  switch (budget) {
+    case "under20":
+      return { min_price: 0, max_price: 20000 };
+    case "20-60":
+      return { min_price: 20000, max_price: 60000 };
+    case "60-100":
+      return { min_price: 60000, max_price: 100000 };
+    case "100-200":
+      return { min_price: 100000, max_price: 200000 };
+    case "200plus":
+      return { min_price: 200000, max_price: 10000000 };
+    default:
+      return { min_price: 0, max_price: 10000000 };
     }
   };
 
@@ -104,7 +108,9 @@ function Preference() {
               options={[
                 { value: "under20", label: "Under Rs. 20,000" },
                 { value: "20-60", label: "Rs. 20,000 – 60,000" },
-                { value: "60plus", label: "Above Rs. 60,000" },
+                { value: "60-100", label: "Rs. 60,000 – 1,00,000" },
+                { value: "100-200", label: "Rs. 1,00,000 – 2,00,000" },
+                { value: "200plus", label: "Above Rs. 2,00,000" },
               ]}
             />
 

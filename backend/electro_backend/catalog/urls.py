@@ -12,4 +12,5 @@ urlpatterns = [
     path('brands/', views.list_brands, name='list-brands'),
     path('products/unclaimed/', views.unclaimed_products, name='unclaimed-products'),
     path('products/<int:product_id>/claim/', views.claim_product, name='claim-product'),
+    path('products/<int:product_id>/', views.product_detail, name='product-detail'),
 ]

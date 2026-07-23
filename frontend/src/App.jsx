@@ -4,6 +4,7 @@ import Preference from "./Preference";
 import Home from "./Home";
 import SellerOnboarding from "./SellerOnboarding";
 import SellerDashboard from "./SellerDashboard";
+import ProductDetail from "./ProductDetail";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route path="/seller-onboarding" element={<SellerOnboarding />} />
       <Route path="/seller-dashboard" element={<SellerDashboard />} />
       <Route path="/homepage" element={<Home />} />
+      <Route path="/product/:id" element={<ProductDetail />} />
     </Routes>
   );
 }

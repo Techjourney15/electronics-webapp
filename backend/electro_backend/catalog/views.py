@@ -12,7 +12,6 @@ from accounts.permissions import IsSeller
 from rest_framework.exceptions import PermissionDenied
 from .models import Category, Brand
 from .serializers import CategorySerializer, BrandSerializer
-from django.db.models import Q
 
 SIMILARITY_DATA = None
 
@@ -155,15 +154,6 @@ def personalized_homepage(request):
     except Exception:
         return featured_products(request._request)
 
-    products = Product.objects.filter(stock_quantity__gt=0)
-
-    if pref.category and pref.category != 'Both':
-        products = products.filter(category__name=pref.category)
-    if pref.min_price:
-        products = products.filter(price_npr__gte=pref.min_price)
-    if pref.max_price:
-        products = products.filter(price_npr__lte=pref.max_price)
-
     # priority_spec anusaar sort garne column choose garne
     priority_sort_map = {
         'gaming': '-ram_gb',
@@ -173,9 +163,23 @@ def personalized_homepage(request):
     }
     sort_field = priority_sort_map.get(pref.priority_spec, '-id')
 
-    products = products.order_by(sort_field)[:20]
+    base_qs = Product.objects.filter(stock_quantity__gt=0)
+    if pref.min_price:
+        base_qs = base_qs.filter(price_npr__gte=pref.min_price)
+    if pref.max_price:
+        base_qs = base_qs.filter(price_npr__lte=pref.max_price)
+
+    if pref.category == 'Both' or not pref.category:
+        # dubai category bata equal number linne, mix guarantee garna
+        phones = base_qs.filter(category__name='Smartphone').order_by(sort_field)[:10]
+        laptops = base_qs.filter(category__name='Laptop').order_by(sort_field)[:10]
+        products = list(phones) + list(laptops)
+    else:
+        products = list(base_qs.filter(category__name=pref.category).order_by(sort_field)[:20])
+
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 @permission_classes([IsSeller])
@@ -184,7 +188,6 @@ def my_products(request):
     products = Product.objects.filter(seller=seller)
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
-
 
 
 @api_view(['GET'])
@@ -201,6 +204,7 @@ def list_brands(request):
     brands = Brand.objects.all()
     serializer = BrandSerializer(brands, many=True)
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 @permission_classes([IsSeller])
@@ -249,6 +253,18 @@ def claim_product(request, product_id):
     if stock_quantity:
         product.stock_quantity = stock_quantity
     product.save()
+
+    serializer = ProductSerializer(product)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def product_detail(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
 
     serializer = ProductSerializer(product)
     return Response(serializer.data)

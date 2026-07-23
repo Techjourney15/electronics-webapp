@@ -1,16 +1,20 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const API = "http://127.0.0.1:8000/api";
 const MEDIA_BASE = "http://127.0.0.1:8000";
 
-function ProductCard({ product }) {
+function ProductCard({ product, onClick }) {
   const imageUrl = product.image
     ? (product.image.startsWith("http") ? product.image : `${MEDIA_BASE}${product.image}`)
     : null;
 
   return (
-    <div className="group overflow-hidden rounded-[20px] border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.86)] shadow-[0_6px_24px_-8px_rgba(141,109,72,0.15)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_12px_36px_-8px_rgba(141,109,72,0.25)]">
+    <div
+      onClick={onClick}
+      className="group cursor-pointer overflow-hidden rounded-[20px] border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.86)] shadow-[0_6px_24px_-8px_rgba(141,109,72,0.15)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_12px_36px_-8px_rgba(141,109,72,0.25)]"
+    >
       <div className="aspect-square w-full overflow-hidden bg-[#f4eadc]">
         {imageUrl ? (
           <img
@@ -41,6 +45,7 @@ function ProductCard({ product }) {
 }
 
 function Home() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -93,7 +98,7 @@ function Home() {
           ) : (
             <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
               {products.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p.id} product={p} onClick={() => navigate(`/product/${p.id}`)} />
               ))}
             </div>
           )}
