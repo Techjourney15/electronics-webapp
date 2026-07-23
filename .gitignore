@@ -1,0 +1,11 @@
+myvenv/
+node_modules/
+.env
+__pycache__/
+*.pyc
+db.sqlite3
+dist/
+dist-ssr/
+.vscode/
+.DS_Store
+backend/electro_backend/recommender/similarity_matrix.pkl

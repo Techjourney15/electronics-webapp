@@ -1,0 +1,762 @@
+{
+  "Vivo||Vivo V29||Smartphone": {
+    "status": "downloaded",
+    "filename": "vivo-vivo-v29.jpg"
+  },
+  "OnePlus||OnePlus Nord N30||Smartphone": {
+    "status": "downloaded",
+    "filename": "oneplus-oneplus-nord-n30.jpg"
+  },
+  "Apple||iPhone 15 Plus||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-15-plus.jpg"
+  },
+  "Apple||iPhone 15||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-15.jpg"
+  },
+  "ASUS||ROG Zephyrus G16||Laptop": {
+    "status": "downloaded",
+    "filename": "asus-rog-zephyrus-g16.jpg"
+  },
+  "Samsung||Galaxy Z Fold5||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-z-fold5.jpg"
+  },
+  "Apple||iPhone SE 2022||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-se-2022.jpg"
+  },
+  "Vivo||Vivo X100 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "vivo-vivo-x100-pro.jpg"
+  },
+  "Google||Pixel 8 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "google-pixel-8-pro.jpg"
+  },
+  "Acer||Aspire 7||Laptop": {
+    "status": "downloaded",
+    "filename": "acer-aspire-7.jpg"
+  },
+  "Google||Pixel 7a||Smartphone": {
+    "status": "downloaded",
+    "filename": "google-pixel-7a.jpg"
+  },
+  "Nokia||Nokia C22||Smartphone": {
+    "status": "downloaded",
+    "filename": "nokia-nokia-c22.jpg"
+  },
+  "OnePlus||OnePlus Nord CE4||Smartphone": {
+    "status": "downloaded",
+    "filename": "oneplus-oneplus-nord-ce4.jpg"
+  },
+  "MSI||Stealth 16||Laptop": {
+    "status": "downloaded",
+    "filename": "msi-stealth-16.jpg"
+  },
+  "Lenovo||Legion 5||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-legion-5.jpg"
+  },
+  "OnePlus||OnePlus 12||Smartphone": {
+    "status": "downloaded",
+    "filename": "oneplus-oneplus-12.jpg"
+  },
+  "Dell||Latitude 7440||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-latitude-7440.jpg"
+  },
+  "Acer||Predator Helios 16||Laptop": {
+    "status": "downloaded",
+    "filename": "acer-predator-helios-16.jpg"
+  },
+  "Samsung||Galaxy M55||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-m55.jpg"
+  },
+  "Motorola||Moto G54||Smartphone": {
+    "status": "downloaded",
+    "filename": "motorola-moto-g54.jpg"
+  },
+  "Vivo||Vivo Y200||Smartphone": {
+    "status": "downloaded",
+    "filename": "vivo-vivo-y200.jpg"
+  },
+  "Oppo||Oppo A18||Smartphone": {
+    "status": "downloaded",
+    "filename": "oppo-oppo-a18.jpg"
+  },
+  "HP||Spectre x360 16||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-spectre-x360-16.jpg"
+  },
+  "Lenovo||ThinkPad L14||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-thinkpad-l14.jpg"
+  },
+  "Acer||Nitro V 15||Laptop": {
+    "status": "downloaded",
+    "filename": "acer-nitro-v-15.jpg"
+  },
+  "Lenovo||ThinkPad X1 Carbon||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-thinkpad-x1-carbon.jpg"
+  },
+  "Apple||iPhone 16||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-16.jpg"
+  },
+  "ASUS||TUF Gaming A15||Laptop": {
+    "status": "downloaded",
+    "filename": "asus-tuf-gaming-a15.jpg"
+  },
+  "Vivo||Vivo Y100||Smartphone": {
+    "status": "downloaded",
+    "filename": "vivo-vivo-y100.jpg"
+  },
+  "ASUS||ZenBook 14||Laptop": {
+    "status": "downloaded",
+    "filename": "asus-zenbook-14.jpg"
+  },
+  "Oppo||Oppo Find X7||Smartphone": {
+    "status": "downloaded",
+    "filename": "oppo-oppo-find-x7.jpg"
+  },
+  "Samsung||Galaxy Z Flip5||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-z-flip5.jpg"
+  },
+  "Google||Pixel 8a||Smartphone": {
+    "status": "downloaded",
+    "filename": "google-pixel-8a.jpg"
+  },
+  "Lenovo||Yoga 9i||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-yoga-9i.jpg"
+  },
+  "Samsung||Galaxy Book3 Ultra||Laptop": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-book3-ultra.jpg"
+  },
+  "Realme||Realme Narzo 60||Smartphone": {
+    "status": "downloaded",
+    "filename": "realme-realme-narzo-60.jpg"
+  },
+  "Nokia||Nokia C12||Smartphone": {
+    "status": "downloaded",
+    "filename": "nokia-nokia-c12.jpg"
+  },
+  "Motorola||Moto G34||Smartphone": {
+    "status": "downloaded",
+    "filename": "motorola-moto-g34.jpg"
+  },
+  "Oppo||Oppo A38||Smartphone": {
+    "status": "downloaded",
+    "filename": "oppo-oppo-a38.jpg"
+  },
+  "Acer||Nitro 5||Laptop": {
+    "status": "downloaded",
+    "filename": "acer-nitro-5.jpg"
+  },
+  "MSI||Katana 15||Laptop": {
+    "status": "downloaded",
+    "filename": "msi-katana-15.jpg"
+  },
+  "HP||EliteBook 860 G10||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-elitebook-860-g10.jpg"
+  },
+  "Xiaomi||Xiaomi 14||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-xiaomi-14.jpg"
+  },
+  "OnePlus||OnePlus 12R||Smartphone": {
+    "status": "downloaded",
+    "filename": "oneplus-oneplus-12r.jpg"
+  },
+  "Dell||G16 Gaming||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-g16-gaming.jpg"
+  },
+  "Apple||MacBook Pro 16 M3 Max||Laptop": {
+    "status": "downloaded",
+    "filename": "apple-macbook-pro-16-m3-max.jpg"
+  },
+  "Dell||Inspiron 14||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-inspiron-14.jpg"
+  },
+  "MSI||Prestige 14||Laptop": {
+    "status": "downloaded",
+    "filename": "msi-prestige-14.jpg"
+  },
+  "Apple||iPhone 16 Plus||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-16-plus.jpg"
+  },
+  "ASUS||VivoBook 15||Laptop": {
+    "status": "downloaded",
+    "filename": "asus-vivobook-15.jpg"
+  },
+  "Samsung||Galaxy Book4||Laptop": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-book4.jpg"
+  },
+  "Google||Pixel 7||Smartphone": {
+    "status": "downloaded",
+    "filename": "google-pixel-7.jpg"
+  },
+  "Oppo||Oppo Reno 11||Smartphone": {
+    "status": "downloaded",
+    "filename": "oppo-oppo-reno-11.jpg"
+  },
+  "HP||OMEN 17||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-omen-17.jpg"
+  },
+  "Apple||MacBook Pro 14 M3||Laptop": {
+    "status": "downloaded",
+    "filename": "apple-macbook-pro-14-m3.jpg"
+  },
+  "MSI||Katana GF66||Laptop": {
+    "status": "downloaded",
+    "filename": "msi-katana-gf66.jpg"
+  },
+  "Acer||Swift Go 14||Laptop": {
+    "status": "downloaded",
+    "filename": "acer-swift-go-14.jpg"
+  },
+  "Xiaomi||Redmi 13C||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-redmi-13c.jpg"
+  },
+  "Vivo||Vivo X100||Smartphone": {
+    "status": "downloaded",
+    "filename": "vivo-vivo-x100.jpg"
+  },
+  "Samsung||Galaxy A14||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-a14.jpg"
+  },
+  "Samsung||Galaxy A54||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-a54.jpg"
+  },
+  "Google||Pixel 7 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "google-pixel-7-pro.jpg"
+  },
+  "Samsung||Galaxy S24||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-s24.jpg"
+  },
+  "Samsung||Galaxy M15||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-m15.jpg"
+  },
+  "ASUS||ZenBook Pro 14||Laptop": {
+    "status": "downloaded",
+    "filename": "asus-zenbook-pro-14.jpg"
+  },
+  "Apple||iPhone 13||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-13.jpg"
+  },
+  "Nokia||Nokia G42||Smartphone": {
+    "status": "downloaded",
+    "filename": "nokia-nokia-g42.jpg"
+  },
+  "Xiaomi||POCO M6 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-poco-m6-pro.jpg"
+  },
+  "Samsung||Galaxy A35||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-a35.jpg"
+  },
+  "Samsung||Galaxy S21||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-s21.jpg"
+  },
+  "Samsung||Galaxy Book4 Pro||Laptop": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-book4-pro.jpg"
+  },
+  "HP||EliteBook 840 G10||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-elitebook-840-g10.jpg"
+  },
+  "Apple||iPhone 16 Pro Max||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-16-pro-max.jpg"
+  },
+  "Acer||Aspire 3||Laptop": {
+    "status": "downloaded",
+    "filename": "acer-aspire-3.jpg"
+  },
+  "Realme||Realme 12 Pro+||Smartphone": {
+    "status": "downloaded",
+    "filename": "realme-realme-12-pro-plus.jpg"
+  },
+  "OnePlus||OnePlus Nord 3||Smartphone": {
+    "status": "downloaded",
+    "filename": "oneplus-oneplus-nord-3.jpg"
+  },
+  "Realme||Realme GT Neo5||Smartphone": {
+    "status": "downloaded",
+    "filename": "realme-realme-gt-neo5.jpg"
+  },
+  "OnePlus||OnePlus Open||Smartphone": {
+    "status": "downloaded",
+    "filename": "oneplus-oneplus-open.jpg"
+  },
+  "ASUS||ROG Strix G16||Laptop": {
+    "status": "downloaded",
+    "filename": "asus-rog-strix-g16.jpg"
+  },
+  "MSI||Creator Z16||Laptop": {
+    "status": "downloaded",
+    "filename": "msi-creator-z16.jpg"
+  },
+  "Apple||iPhone 15 Pro Max||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-15-pro-max.jpg"
+  },
+  "Lenovo||Yoga 7i||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-yoga-7i.jpg"
+  },
+  "Xiaomi||Redmi 13||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-redmi-13.jpg"
+  },
+  "MSI||Thin GF63||Laptop": {
+    "status": "downloaded",
+    "filename": "msi-thin-gf63.jpg"
+  },
+  "Google||Pixel 8||Smartphone": {
+    "status": "downloaded",
+    "filename": "google-pixel-8.jpg"
+  },
+  "Realme||Realme C67||Smartphone": {
+    "status": "downloaded",
+    "filename": "realme-realme-c67.jpg"
+  },
+  "Xiaomi||Xiaomi 13T Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-xiaomi-13t-pro.jpg"
+  },
+  "MSI||Prestige 16||Laptop": {
+    "status": "downloaded",
+    "filename": "msi-prestige-16.jpg"
+  },
+  "HP||ProBook 450 G10||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-probook-450-g10.jpg"
+  },
+  "Dell||Alienware m16||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-alienware-m16.jpg"
+  },
+  "MSI||Raider GE78||Laptop": {
+    "status": "downloaded",
+    "filename": "msi-raider-ge78.jpg"
+  },
+  "OnePlus||OnePlus 11||Smartphone": {
+    "status": "downloaded",
+    "filename": "oneplus-oneplus-11.jpg"
+  },
+  "Nokia||Nokia C32||Smartphone": {
+    "status": "downloaded",
+    "filename": "nokia-nokia-c32.jpg"
+  },
+  "Lenovo||ThinkPad T14s||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-thinkpad-t14s.jpg"
+  },
+  "Apple||iPhone 14 Plus||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-14-plus.jpg"
+  },
+  "Vivo||Vivo V30 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "vivo-vivo-v30-pro.jpg"
+  },
+  "Xiaomi||POCO X6||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-poco-x6.jpg"
+  },
+  "Xiaomi||POCO X6 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-poco-x6-pro.jpg"
+  },
+  "Realme||Realme Narzo 70||Smartphone": {
+    "status": "downloaded",
+    "filename": "realme-realme-narzo-70.jpg"
+  },
+  "Oppo||Oppo A79||Smartphone": {
+    "status": "downloaded",
+    "filename": "oppo-oppo-a79.jpg"
+  },
+  "HP||Envy 16||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-envy-16.jpg"
+  },
+  "HP||OMEN 16||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-omen-16.jpg"
+  },
+  "Dell||XPS 15||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-xps-15.jpg"
+  },
+  "Nokia||Nokia G22||Smartphone": {
+    "status": "downloaded",
+    "filename": "nokia-nokia-g22.jpg"
+  },
+  "Motorola||Moto G74||Smartphone": {
+    "status": "downloaded",
+    "filename": "motorola-moto-g74.jpg"
+  },
+  "Acer||Swift 3||Laptop": {
+    "status": "downloaded",
+    "filename": "acer-swift-3.jpg"
+  },
+  "Apple||MacBook Pro 14 M3 Pro||Laptop": {
+    "status": "downloaded",
+    "filename": "apple-macbook-pro-14-m3-pro.jpg"
+  },
+  "Motorola||Moto G14||Smartphone": {
+    "status": "downloaded",
+    "filename": "motorola-moto-g14.jpg"
+  },
+  "Dell||G15 Gaming||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-g15-gaming.jpg"
+  },
+  "Apple||iPhone 16 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-16-pro.jpg"
+  },
+  "Realme||Realme 12||Smartphone": {
+    "status": "downloaded",
+    "filename": "realme-realme-12.jpg"
+  },
+  "Xiaomi||Redmi Note 12 Pro+||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-redmi-note-12-pro-plus.jpg"
+  },
+  "ASUS||ExpertBook B1||Laptop": {
+    "status": "downloaded",
+    "filename": "asus-expertbook-b1.jpg"
+  },
+  "Apple||MacBook Pro 16 M3 Pro||Laptop": {
+    "status": "downloaded",
+    "filename": "apple-macbook-pro-16-m3-pro.jpg"
+  },
+  "Xiaomi||Xiaomi 14 Ultra||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-xiaomi-14-ultra.jpg"
+  },
+  "Vivo||Vivo T3||Smartphone": {
+    "status": "downloaded",
+    "filename": "vivo-vivo-t3.jpg"
+  },
+  "ASUS||ROG Zephyrus G14||Laptop": {
+    "status": "downloaded",
+    "filename": "asus-rog-zephyrus-g14.jpg"
+  },
+  "OnePlus||OnePlus Nord CE3 Lite||Smartphone": {
+    "status": "downloaded",
+    "filename": "oneplus-oneplus-nord-ce3-lite.jpg"
+  },
+  "Dell||Alienware x16||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-alienware-x16.jpg"
+  },
+  "Samsung||Galaxy A34||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-a34.jpg"
+  },
+  "Motorola||Moto G24||Smartphone": {
+    "status": "downloaded",
+    "filename": "motorola-moto-g24.jpg"
+  },
+  "Lenovo||IdeaPad Slim 3||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-ideapad-slim-3.jpg"
+  },
+  "Xiaomi||Xiaomi 13T||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-xiaomi-13t.jpg"
+  },
+  "HP||Pavilion 15||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-pavilion-15.jpg"
+  },
+  "Lenovo||Legion Pro 7||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-legion-pro-7.jpg"
+  },
+  "Samsung||Galaxy Book3||Laptop": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-book3.jpg"
+  },
+  "Apple||MacBook Air M2||Laptop": {
+    "status": "downloaded",
+    "filename": "apple-macbook-air-m2.jpg"
+  },
+  "Realme||Realme 12 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "realme-realme-12-pro.jpg"
+  },
+  "Xiaomi||Redmi Note 13 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-redmi-note-13-pro.jpg"
+  },
+  "MSI||Modern 14||Laptop": {
+    "status": "downloaded",
+    "filename": "msi-modern-14.jpg"
+  },
+  "Oppo||Oppo Find X7 Ultra||Smartphone": {
+    "status": "downloaded",
+    "filename": "oppo-oppo-find-x7-ultra.jpg"
+  },
+  "Samsung||Galaxy A05||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-a05.jpg"
+  },
+  "Apple||iPhone 14||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-14.jpg"
+  },
+  "Motorola||Motorola Edge 50||Smartphone": {
+    "status": "downloaded",
+    "filename": "motorola-motorola-edge-50.jpg"
+  },
+  "MSI||Modern 15||Laptop": {
+    "status": "downloaded",
+    "filename": "msi-modern-15.jpg"
+  },
+  "ASUS||TUF Gaming F15||Laptop": {
+    "status": "downloaded",
+    "filename": "asus-tuf-gaming-f15.jpg"
+  },
+  "Samsung||Galaxy M35||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-m35.jpg"
+  },
+  "Dell||Inspiron 15||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-inspiron-15.jpg"
+  },
+  "Oppo||Oppo Reno 10||Smartphone": {
+    "status": "downloaded",
+    "filename": "oppo-oppo-reno-10.jpg"
+  },
+  "Realme||Realme GT5 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "realme-realme-gt5-pro.jpg"
+  },
+  "Samsung||Galaxy M34||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-m34.jpg"
+  },
+  "HP||Spectre x360 14||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-spectre-x360-14.jpg"
+  },
+  "Xiaomi||Redmi Note 13 Pro+||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-redmi-note-13-pro-plus.jpg"
+  },
+  "Vivo||Vivo V30||Smartphone": {
+    "status": "downloaded",
+    "filename": "vivo-vivo-v30.jpg"
+  },
+  "Xiaomi||Redmi Note 12||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-redmi-note-12.jpg"
+  },
+  "Samsung||Galaxy Book3 Pro 360||Laptop": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-book3-pro-360.jpg"
+  },
+  "Xiaomi||Xiaomi 14 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-xiaomi-14-pro.jpg"
+  },
+  "Acer||TravelMate P2||Laptop": {
+    "status": "downloaded",
+    "filename": "acer-travelmate-p2.jpg"
+  },
+  "Vivo||Vivo Y36||Smartphone": {
+    "status": "downloaded",
+    "filename": "vivo-vivo-y36.jpg"
+  },
+  "Samsung||Galaxy F15||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-f15.jpg"
+  },
+  "Xiaomi||POCO C65||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-poco-c65.jpg"
+  },
+  "Lenovo||LOQ 15||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-loq-15.jpg"
+  },
+  "Vivo||Vivo Y28||Smartphone": {
+    "status": "downloaded",
+    "filename": "vivo-vivo-y28.jpg"
+  },
+  "Dell||Inspiron 16||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-inspiron-16.jpg"
+  },
+  "Samsung||Galaxy A15||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-a15.jpg"
+  },
+  "Motorola||Motorola Edge 50 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "motorola-motorola-edge-50-pro.jpg"
+  },
+  "Motorola||Moto G84||Smartphone": {
+    "status": "downloaded",
+    "filename": "motorola-moto-g84.jpg"
+  },
+  "Lenovo||Legion 5 Pro||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-legion-5-pro.jpg"
+  },
+  "Apple||iPhone 14 Pro Max||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-14-pro-max.jpg"
+  },
+  "Samsung||Galaxy A55||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-a55.jpg"
+  },
+  "HP||Pavilion 14||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-pavilion-14.jpg"
+  },
+  "Dell||Latitude 5440||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-latitude-5440.jpg"
+  },
+  "Acer||Aspire 5||Laptop": {
+    "status": "downloaded",
+    "filename": "acer-aspire-5.jpg"
+  },
+  "Samsung||Galaxy Book3 Pro||Laptop": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-book3-pro.jpg"
+  },
+  "HP||Victus 16||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-victus-16.jpg"
+  },
+  "Apple||MacBook Air M3||Laptop": {
+    "status": "downloaded",
+    "filename": "apple-macbook-air-m3.jpg"
+  },
+  "Xiaomi||Redmi Note 13||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-redmi-note-13.jpg"
+  },
+  "ASUS||VivoBook S14||Laptop": {
+    "status": "downloaded",
+    "filename": "asus-vivobook-s14.jpg"
+  },
+  "Lenovo||ThinkPad E14||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-thinkpad-e14.jpg"
+  },
+  "Acer||Swift X 14||Laptop": {
+    "status": "downloaded",
+    "filename": "acer-swift-x-14.jpg"
+  },
+  "Dell||Vostro 14||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-vostro-14.jpg"
+  },
+  "Dell||Vostro 15||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-vostro-15.jpg"
+  },
+  "Realme||Realme C55||Smartphone": {
+    "status": "downloaded",
+    "filename": "realme-realme-c55.jpg"
+  },
+  "Samsung||Galaxy S23||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-s23.jpg"
+  },
+  "Apple||iPhone 15 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-15-pro.jpg"
+  },
+  "Xiaomi||Redmi A3||Smartphone": {
+    "status": "downloaded",
+    "filename": "xiaomi-redmi-a3.jpg"
+  },
+  "HP||Pavilion x360||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-pavilion-x360.jpg"
+  },
+  "Oppo||Oppo A59||Smartphone": {
+    "status": "downloaded",
+    "filename": "oppo-oppo-a59.jpg"
+  },
+  "Dell||XPS 14||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-xps-14.jpg"
+  },
+  "HP||Victus 15||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-victus-15.jpg"
+  },
+  "Dell||Latitude 5540||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-latitude-5540.jpg"
+  },
+  "Lenovo||IdeaPad Slim 5||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-ideapad-slim-5.jpg"
+  },
+  "Lenovo||IdeaPad Gaming 3||Laptop": {
+    "status": "downloaded",
+    "filename": "lenovo-ideapad-gaming-3.jpg"
+  },
+  "Oppo||Oppo Reno 11 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "oppo-oppo-reno-11-pro.jpg"
+  },
+  "Apple||iPhone 14 Pro||Smartphone": {
+    "status": "downloaded",
+    "filename": "apple-iphone-14-pro.jpg"
+  },
+  "Samsung||Galaxy S24 FE||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-s24-fe.jpg"
+  },
+  "Dell||XPS 13||Laptop": {
+    "status": "downloaded",
+    "filename": "dell-xps-13.jpg"
+  },
+  "HP||Envy x360||Laptop": {
+    "status": "downloaded",
+    "filename": "hp-envy-x360.jpg"
+  },
+  "Samsung||Galaxy F55||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-f55.jpg"
+  },
+  "Samsung||Galaxy S22||Smartphone": {
+    "status": "downloaded",
+    "filename": "samsung-galaxy-s22.jpg"
+  }
+}
