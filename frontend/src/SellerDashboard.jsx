@@ -138,7 +138,7 @@ function SellerDashboard() {
   ];
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f6efe3] text-slate-900 px-4 py-10 sm:px-8">
+    <main className="relative min-h-screen overflow-hidden bg-[#eef3fb] text-slate-900 px-4 py-10 sm:px-8">
       <div className="mx-auto max-w-5xl">
 
         {/* header + add product button */}
@@ -146,7 +146,7 @@ function SellerDashboard() {
           <h1 className="text-3xl font-semibold tracking-[-0.03em]">Seller Dashboard</h1>
           <button
             onClick={() => setShowForm((s) => !s)}
-            className="rounded-2xl border border-[#d9c6a7] bg-[linear-gradient(120deg,#d9c6a7_0%,#f2e4cc_55%,#b69468_100%)] px-5 py-2.5 text-sm font-semibold text-[#4d3824]"
+            className="rounded-2xl border border-[#93b4e0] bg-[linear-gradient(120deg,#93b4e0_0%,#c3d7f0_55%,#2f5fa8_100%)] px-5 py-2.5 text-sm font-semibold text-[#1a3a66]"
           >
             {showForm ? "Cancel" : "+ Add Product"}
           </button>
@@ -177,13 +177,13 @@ function SellerDashboard() {
         {error && <p className="mb-4 text-sm font-medium text-red-600">{error}</p>}
 
         {/* browse existing product section — claim garna, category filter sanga */}
-        <div className="mb-10 rounded-[20px] border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.86)] p-6">
-          <h2 className="mb-4 text-lg font-semibold text-[#6a5138]">List an Existing Product</h2>
+        <div className="mb-10 rounded-[20px] border border-[#d3e0f5]/40 bg-[rgba(238,243,251,0.86)] p-6">
+          <h2 className="mb-4 text-lg font-semibold text-[#2f5fa8]">List an Existing Product</h2>
           <div className="mb-4 flex flex-wrap gap-2">
             <select
               value={browseCategory}
               onChange={(e) => setBrowseCategory(e.target.value)}
-              className="rounded-xl border border-[#dfd0b8]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#9d7b55]"
+              className="rounded-xl border border-[#c3d7f0]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#2f5fa8]"
             >
               <option value="">All Categories</option>
               <option value="Smartphone">Smartphone</option>
@@ -193,11 +193,11 @@ function SellerDashboard() {
               placeholder="Search (e.g. Vivo, laptop model name)"
               value={browseQuery}
               onChange={(e) => setBrowseQuery(e.target.value)}
-              className="flex-1 rounded-xl border border-[#dfd0b8]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#9d7b55]"
+              className="flex-1 rounded-xl border border-[#c3d7f0]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#2f5fa8]"
             />
             <button
               onClick={searchUnclaimed}
-              className="rounded-xl border border-[#d9c6a7] bg-[#f2e4cc] px-4 py-2.5 text-sm font-semibold text-[#4d3824]"
+              className="rounded-xl border border-[#93b4e0] bg-[#c3d7f0] px-4 py-2.5 text-sm font-semibold text-[#1a3a66]"
             >
               Search
             </button>
@@ -207,15 +207,15 @@ function SellerDashboard() {
             {browseResults.map((p) => (
               <div
                 key={p.id}
-                className="overflow-hidden rounded-2xl border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.86)]"
+                className="overflow-hidden rounded-2xl border border-[#d3e0f5]/40 bg-[rgba(238,243,251,0.86)]"
               >
 
                 {/* Click ONLY this upper section to open product details */}
                 <div
                   onClick={() => navigate(`/product/${p.id}`)}
-                  className="flex cursor-pointer items-center gap-3 p-3 hover:bg-[#f9f5ef]"
+                  className="flex cursor-pointer items-center gap-3 p-3 hover:bg-[#eef3fb]"
                 >
-                  <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-[#f4eadc]">
+                  <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-[#e3edfa]">
                     {p.image ? (
                       <img
                         src={p.image.startsWith("http") ? p.image : `${MEDIA_BASE}${p.image}`}
@@ -249,7 +249,7 @@ function SellerDashboard() {
                         placeholder="Your price (Rs.)"
                         value={claimPrice}
                         onChange={(e) => setClaimPrice(e.target.value)}
-                        className="w-32 rounded-lg border border-[#dfd0b8]/70 px-2 py-1.5 text-xs"
+                        className="w-32 rounded-lg border border-[#c3d7f0]/70 px-2 py-1.5 text-xs"
                       />
 
                       <input
@@ -257,12 +257,12 @@ function SellerDashboard() {
                         placeholder="Stock"
                         value={claimStock}
                         onChange={(e) => setClaimStock(e.target.value)}
-                        className="w-24 rounded-lg border border-[#dfd0b8]/70 px-2 py-1.5 text-xs"
+                        className="w-24 rounded-lg border border-[#c3d7f0]/70 px-2 py-1.5 text-xs"
                       />
 
                       <button
                         onClick={() => handleClaim(p.id)}
-                        className="rounded-lg bg-[#a17c56] px-3 py-1.5 text-xs font-semibold text-white"
+                        className="rounded-lg bg-[#2f5fa8] px-3 py-1.5 text-xs font-semibold text-white"
                       >
                         Confirm
                       </button>
@@ -270,7 +270,7 @@ function SellerDashboard() {
                   ) : (
                     <button
                       onClick={() => setClaimingId(p.id)}
-                      className="mt-2 rounded-lg border border-[#d9c6a7] px-3 py-1.5 text-xs font-semibold text-[#4d3824]"
+                      className="mt-2 rounded-lg border border-[#93b4e0] px-3 py-1.5 text-xs font-semibold text-[#1a3a66]"
                     >
                       List this product
                     </button>
@@ -292,7 +292,7 @@ function SellerDashboard() {
             <select
               value={form.category}
               onChange={updateField("category")}
-              className="rounded-xl border border-[#dfd0b8]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#9d7b55]"
+              className="rounded-xl border border-[#c3d7f0]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#2f5fa8]"
               required
             >
               <option value="">Select Category</option>
@@ -305,7 +305,7 @@ function SellerDashboard() {
             <select
               value={form.brand}
               onChange={updateField("brand")}
-              className="rounded-xl border border-[#dfd0b8]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#9d7b55]"
+              className="rounded-xl border border-[#c3d7f0]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#2f5fa8]"
               required
             >
               <option value="">Select Brand</option>
@@ -321,7 +321,7 @@ function SellerDashboard() {
                 placeholder={key}
                 value={form[key]}
                 onChange={updateField(key)}
-                className="rounded-xl border border-[#dfd0b8]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#9d7b55]"
+                className="rounded-xl border border-[#c3d7f0]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#2f5fa8]"
               />
             ))}
 
@@ -333,14 +333,14 @@ function SellerDashboard() {
                 placeholder={key}
                 value={form[key]}
                 onChange={updateField(key)}
-                className="rounded-xl border border-[#dfd0b8]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#9d7b55]"
+                className="rounded-xl border border-[#c3d7f0]/70 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#2f5fa8]"
               />
             ))}
 
             <button
               type="submit"
               disabled={saving}
-              className="sm:col-span-2 mt-2 rounded-2xl border border-[#d9c6a7] bg-[linear-gradient(120deg,#d9c6a7_0%,#f2e4cc_55%,#b69468_100%)] px-4 py-3 text-sm font-semibold text-[#4d3824] disabled:opacity-60"
+              className="sm:col-span-2 mt-2 rounded-2xl border border-[#93b4e0] bg-[linear-gradient(120deg,#93b4e0_0%,#c3d7f0_55%,#2f5fa8_100%)] px-4 py-3 text-sm font-semibold text-[#1a3a66] disabled:opacity-60"
             >
               {saving ? "Saving…" : "Save Product"}
             </button>
@@ -348,7 +348,7 @@ function SellerDashboard() {
         )}
 
         {/* seller ko afnai product list dekhaune section — image sanga */}
-        <h2 className="mb-4 text-lg font-semibold text-[#6a5138]">My Products</h2>
+        <h2 className="mb-4 text-lg font-semibold text-[#2f5fa8]">My Products</h2>
         {loading ? (
           <p className="text-sm text-slate-600">Loading…</p>
         ) : products.length === 0 ? (
@@ -362,10 +362,10 @@ function SellerDashboard() {
                   console.log("Opening product:", p.id);
                   navigate(`/product/${p.id}`);
                 }}
-                className="cursor-pointer overflow-hidden rounded-2xl border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.86)] transition hover:-translate-y-1 hover:shadow-lg"
+                className="cursor-pointer overflow-hidden rounded-2xl border border-[#d3e0f5]/40 bg-[rgba(238,243,251,0.86)] transition hover:-translate-y-1 hover:shadow-lg"
               >
                 {/* product ko image */}
-                <div className="aspect-square w-full bg-[#f4eadc]">
+                <div className="aspect-square w-full bg-[#e3edfa]">
                   {p.image ? (
                     <img
                       src={p.image.startsWith("http") ? p.image : `${MEDIA_BASE}${p.image}`}

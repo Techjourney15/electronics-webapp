@@ -15,9 +15,9 @@ function RecommendationCard({ product, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="cursor-pointer overflow-hidden rounded-2xl border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.86)] transition hover:-translate-y-1 hover:shadow-lg"
+      className="cursor-pointer overflow-hidden rounded-2xl border border-[#d3e0f5]/40 bg-[rgba(238,243,251,0.86)] transition hover:-translate-y-1 hover:shadow-lg"
     >
-      <div className="aspect-square w-full bg-[#f4eadc]">
+      <div className="aspect-square w-full bg-[#e3edfa]">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -39,7 +39,7 @@ function RecommendationCard({ product, onClick }) {
           {product.product_name}
         </p>
 
-        <p className="mt-1 text-sm font-semibold text-[#4d3824]">
+        <p className="mt-1 text-sm font-semibold text-[#1a3a66]">
           Rs. {product.price_npr}
         </p>
       </div>
@@ -72,7 +72,7 @@ function ProductDetail() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#f6efe3] px-4 py-10 sm:px-8">
+      <main className="min-h-screen bg-[#eef3fb] px-4 py-10 sm:px-8">
         <p className="text-sm text-slate-600">Loading…</p>
       </main>
     );
@@ -80,7 +80,7 @@ function ProductDetail() {
 
   if (error || !product) {
     return (
-      <main className="min-h-screen bg-[#f6efe3] px-4 py-10 sm:px-8">
+      <main className="min-h-screen bg-[#eef3fb] px-4 py-10 sm:px-8">
         <p className="text-sm font-medium text-red-600">{error || "Product not found."}</p>
       </main>
     );
@@ -110,20 +110,20 @@ function ProductDetail() {
   ].filter(([, value]) => value);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f6efe3] text-slate-900">
+    <main className="relative min-h-screen overflow-hidden bg-[#eef3fb] text-slate-900">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(214,176,126,0.28),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(141,109,72,0.12),transparent_34%)]" />
 
       <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-8">
         <button
           onClick={() => navigate(-1)}
-          className="mb-6 text-sm font-semibold text-[#6a5138] hover:underline"
+          className="mb-6 text-sm font-semibold text-[#2f5fa8] hover:underline"
         >
           ← Back
         </button>
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
           {/* image */}
-          <div className="aspect-square w-full overflow-hidden rounded-[24px] border border-[#E6E1D5]/40 bg-[#f4eadc]">
+          <div className="aspect-square w-full overflow-hidden rounded-[24px] border border-[#d3e0f5]/40 bg-[#e3edfa]">
             {imageUrl ? (
               <img
                 src={imageUrl}
@@ -140,13 +140,13 @@ function ProductDetail() {
 
           {/* details */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9d7b55]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#2f5fa8]">
               {product.sub_category} · {product.seller_name}
             </p>
             <h1 className="mt-2 text-2xl font-semibold tracking-[-0.02em] sm:text-3xl">
               {product.product_name}
             </h1>
-            <p className="mt-3 text-2xl font-semibold text-[#4d3824]">
+            <p className="mt-3 text-2xl font-semibold text-[#1a3a66]">
               Rs. {product.price_npr?.toLocaleString()}
             </p>
             <p className="mt-1 text-sm text-slate-600">
@@ -161,7 +161,7 @@ function ProductDetail() {
             <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-3">
               {specs.map(([label, value]) => (
                 <div key={label}>
-                  <p className="text-xs uppercase tracking-[0.14em] text-[#9d7b55]">{label}</p>
+                  <p className="text-xs uppercase tracking-[0.14em] text-[#2f5fa8]">{label}</p>
                   <p className="text-sm font-medium text-slate-900">{value}</p>
                 </div>
               ))}
@@ -172,7 +172,7 @@ function ProductDetail() {
         {/* similar products */}
         {recommendations.length > 0 && (
           <div className="mt-16">
-            <h2 className="mb-5 text-lg font-semibold text-[#6a5138]">Similar products</h2>
+            <h2 className="mb-5 text-lg font-semibold text-[#2f5fa8]">Similar products</h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
               {recommendations.map((r) => (
                 <RecommendationCard

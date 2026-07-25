@@ -13,9 +13,9 @@ function ProductCard({ product, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="group cursor-pointer overflow-hidden rounded-[20px] border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.86)] shadow-[0_6px_24px_-8px_rgba(141,109,72,0.15)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_12px_36px_-8px_rgba(141,109,72,0.25)]"
+      className="group cursor-pointer overflow-hidden rounded-[20px] border border-[#d3e0f5]/40 bg-[rgba(238,243,251,0.86)] shadow-[0_6px_24px_-8px_rgba(141,109,72,0.15)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_12px_36px_-8px_rgba(141,109,72,0.25)]"
     >
-      <div className="aspect-square w-full overflow-hidden bg-[#f4eadc]">
+      <div className="aspect-square w-full overflow-hidden bg-[#e3edfa]">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -33,10 +33,10 @@ function ProductCard({ product, onClick }) {
         <p className="line-clamp-1 text-sm font-semibold text-slate-900">
           {product.product_name}
         </p>
-        <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[#9d7b55]">
+        <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[#2f5fa8]">
           {product.sub_category}
         </p>
-        <p className="mt-2 text-base font-semibold text-[#4d3824]">
+        <p className="mt-2 text-base font-semibold text-[#1a3a66]">
           Rs. {product.price_npr?.toLocaleString()}
         </p>
       </div>
@@ -63,13 +63,13 @@ function Home() {
   }, []);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f6efe3] text-slate-900">
+    <main className="relative min-h-screen overflow-hidden bg-[#eef3fb] text-slate-900">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(214,176,126,0.28),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(141,109,72,0.12),transparent_34%)]" />
       <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(95,74,44,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(95,74,44,0.06)_1px,transparent_1px)] [background-size:72px_72px]" />
 
       <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-8">
         <div className="mb-2 flex items-center gap-2">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#d9c6a7] bg-[#f4eadc] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-[#6a5138]">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#93b4e0] bg-[#e3edfa] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-[#2f5fa8]">
             Nexora
           </span>
         </div>
@@ -78,7 +78,7 @@ function Home() {
           Featured for you
         </h1>
         <p className="mt-2 max-w-xl text-sm leading-6 text-slate-700">
-          Handpicked from your preferences — curated by budget, category, and what matters most to you.
+          Handpicked from your preferences : Curated by budget, category, and your priority.
         </p>
 
         <div className="mt-10">
@@ -87,7 +87,7 @@ function Home() {
               {Array.from({ length: 8 }).map((_, i) => (
                 <div
                   key={i}
-                  className="aspect-[3/4] animate-pulse rounded-[20px] border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.5)]"
+                  className="aspect-[3/4] animate-pulse rounded-[20px] border border-[#d3e0f5]/40 bg-[rgba(238,243,251,0.5)]"
                 />
               ))}
             </div>

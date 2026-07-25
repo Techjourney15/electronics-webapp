@@ -1,33 +1,32 @@
 @import 'tailwindcss';
 
-:root {
-  font-family: Inter, system-ui, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #e5e7eb;
-  background: #020617;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@layer base {
+  :root {
+    @apply text-slate-100;
+    font-family: Inter, system-ui, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-* {
-  box-sizing: border-box;
-}
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top, rgba(214, 176, 126, 0.18), transparent 40%),
-    radial-gradient(circle at bottom right, rgba(141, 109, 72, 0.08), transparent 45%),
-    linear-gradient(135deg, rgba(244, 234, 220, 0.72) 0%, rgba(237, 227, 208, 0.66) 50%, rgba(247, 241, 231, 0.78) 100%);
-}
+  body {
+    @apply m-0 min-w-[320px] min-h-screen;
+    background:
+      radial-gradient(circle at top left, rgba(50, 102, 190, 0.22), transparent 32%),
+      radial-gradient(circle at right, rgba(26, 67, 125, 0.24), transparent 35%),
+      linear-gradient(135deg, #041028 0%, #0b1a3c 45%, #13284f 100%);
+  }
 
-#root {
-  min-height: 100vh;
+  #root {
+    @apply min-h-screen;
+  }
 }
 
 @keyframes float {
@@ -37,5 +36,28 @@ body {
   }
   50% {
     transform: translateY(-6px);
+  }
+}
+
+@keyframes letterReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
