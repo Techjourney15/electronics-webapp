@@ -176,8 +176,7 @@ def plot_accuracy_vs_random(model_metrics, random_metrics, out_path):
     ax.set_xticklabels(labels)
     ax.set_ylim(0, max(max(model_vals), max(random_vals)) * 1.25)
     ax.set_ylabel("score")
-    ax.set_title("Recommendation Quality: Model vs Random Baseline\n"
-                  "(same relevance definition used throughout the project)")
+    ax.set_title("Model vs Random Baseline")
     ax.legend()
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
@@ -189,7 +188,6 @@ def plot_accuracy_vs_random(model_metrics, random_metrics, out_path):
 def plot_recall_context(model_metrics, out_path):
     labels = ["Recall@5\n(raw)", "Max possible\nRecall@5"]
     vals = [model_metrics["recall_at_k"], model_metrics["max_possible_recall_at_k"]]
-    pct_of_ceiling = 100 * model_metrics["recall_at_k"] / model_metrics["max_possible_recall_at_k"]
 
     fig, ax = plt.subplots(figsize=(6, 5))
     bars = ax.bar(labels, vals, color=["tab:blue", "tab:green"])
@@ -198,9 +196,7 @@ def plot_recall_context(model_metrics, out_path):
         ax.annotate(f"{h:.4f}", (b.get_x() + b.get_width() / 2, h),
                     textcoords="offset points", xytext=(0, 4), ha="center", fontsize=9)
     ax.set_ylabel("recall")
-    ax.set_title(f"Recall@5 vs its theoretical ceiling\n"
-                 f"(k=5 is small relative to relevant-set size -- raw recall\n"
-                 f"reaches {pct_of_ceiling:.0f}% of the maximum possible for this k)")
+    ax.set_title("Recall@5 vs Theoretical Ceiling")
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
     fig.savefig(out_path, dpi=150)

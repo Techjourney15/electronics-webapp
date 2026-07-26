@@ -65,7 +65,7 @@ ID_COL = "product_id"
 NAME_COL = "product_name"
 CATEGORY_COL = "category"
 TEXT_COL = "description"
-CAT_COLS = ["category", "sub_category", "brand", "os"]
+CAT_COLS = ["category", "sub_category", "os"]
 SPEC_COLS = ["price_npr", "ram_gb", "storage_gb", "display_size_inches",
              "refresh_rate_hz", "battery_mah", "weight_grams", "rating"]
 PRICE_COL = "price_npr"
@@ -75,16 +75,24 @@ def load_product_database(csv_path: str = CSV_PATH) -> pd.DataFrame:
     df = pd.read_csv(csv_path)
     df = df.dropna(subset=[TEXT_COL] + CAT_COLS + SPEC_COLS).reset_index(drop=True)
     return df
+import re
 
+def strip_brand_tokens(description: str, brand: str, product_name: str) -> str:
+    text = description.lower()
+    text = re.sub(rf'\b{re.escape(brand.lower())}\b', '', text)
+    return re.sub(r'\s+', ' ', text).strip()
 
 # ----------------------------------------------------------------------
 # PIPELINE 1: TF-IDF on text -> Text Vector
 # ----------------------------------------------------------------------
 def build_text_vector(df: pd.DataFrame):
+    df['text_for_tfidf'] = df.apply(
+        lambda row: strip_brand_tokens(row['description'], row['brand'], row['product_name']),
+        axis=1
+    )
     tfidf = TfidfVectorizer(stop_words="english", max_features=500)
-    text_vec = tfidf.fit_transform(df[TEXT_COL]).toarray().astype(np.float32)
+    text_vec = tfidf.fit_transform(df['text_for_tfidf']).toarray().astype(np.float32)
     return text_vec
-
 
 # ----------------------------------------------------------------------
 # PIPELINE 2: One-hot encoding -> Category Vector
