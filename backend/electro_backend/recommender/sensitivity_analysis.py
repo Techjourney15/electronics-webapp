@@ -139,16 +139,20 @@ def sweep_weight(which: str, t_s, c_s, s_s, label_matrix, baseline,
 
 
 # ----------------------------------------------------------------------
-# Plot: stability band, not "best point"
+# Plot: stability band, not "best point" -- one figure per weight
 # ----------------------------------------------------------------------
 def plot_sensitivity(results_by_weight: dict, out_path: str, baseline_weights):
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
     titles = {"text": "Text weight (w_text)",
               "category": "Category weight (w_cat)",
               "spec": "Spec weight (w_spec)"}
     baseline_idx = {"text": 0, "category": 1, "spec": 2}
 
-    for ax, key in zip(axes, ["text", "category", "spec"]):
+    base, ext = os.path.splitext(out_path)
+    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+
+    for key in ["text", "category", "spec"]:
+        fig, ax = plt.subplots(figsize=(6, 5))
+
         vals = np.array([r[0] for r in results_by_weight[key]])
         scores = np.array([r[2] for r in results_by_weight[key]])
 
@@ -166,20 +170,16 @@ def plot_sensitivity(results_by_weight: dict, out_path: str, baseline_weights):
         ax.axvline(search_value, color="gray", linestyle="--", linewidth=1.3,
                    label=f"search-selected weight ({search_value})")
 
-        ax.set_title(titles[key])
+        ax.set_title(f"Sensitivity: {titles[key]}")
         ax.set_xlabel("weight value")
         ax.set_ylabel("agreement with relevance labels")
         ax.set_ylim(-0.05, 1.05)
         ax.grid(alpha=0.3)
         ax.legend(fontsize=8, loc="lower center")
 
-    fig.suptitle("Recommendation Quality Across a Range of Weights\n"
-                  "(sweep centered on search_weights() output -- checking its robustness, not re-picking it)",
-                  fontsize=12)
-    fig.tight_layout(rect=[0, 0, 1, 0.90])
-    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
-    fig.savefig(out_path, dpi=150)
-    plt.close(fig)
+        fig.tight_layout()
+        fig.savefig(f"{base}_{key}{ext}", dpi=150)
+        plt.close(fig)
 
 
 # ----------------------------------------------------------------------
