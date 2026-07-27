@@ -4,7 +4,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status, generics
 from django.db.models import Q
-import pickle
 import os
 from .models import Product
 from .serializers import ProductSerializer
@@ -12,17 +11,26 @@ from accounts.permissions import IsSeller
 from rest_framework.exceptions import PermissionDenied
 from .models import Category, Brand
 from .serializers import CategorySerializer, BrandSerializer
+import numpy as np
+import json
 
 SIMILARITY_DATA = None
 
 def _load_similarity_data():
     global SIMILARITY_DATA
     if SIMILARITY_DATA is None:
-        pkl_path = os.path.join(
-            settings.BASE_DIR, 'recommender', 'similarity_matrix.pkl'
-        )
-        with open(pkl_path, 'rb') as f:
-            SIMILARITY_DATA = pickle.load(f)
+        cache_dir = os.path.join(settings.BASE_DIR, 'recommender', 'similarity_cache')
+        matrix = np.load(os.path.join(cache_dir, 'similarity_matrix.npy'))
+        product_ids = np.load(
+            os.path.join(cache_dir, 'product_ids.npy'), allow_pickle=True
+        ).tolist()
+        with open(os.path.join(cache_dir, 'weights.json')) as f:
+            weights = json.load(f)
+        SIMILARITY_DATA = {
+            'matrix': matrix,
+            'product_ids': product_ids,  # e.g. ["LPT-01318", "PHN-01136", ...]
+            'weights': weights,
+        }
     return SIMILARITY_DATA
 
 
@@ -30,49 +38,37 @@ def _load_similarity_data():
 @permission_classes([IsAuthenticated])
 def get_recommendations(request, product_id):
     data = _load_similarity_data()
-    matrix = data['feature_similarity_matrix']
+    matrix = data['matrix']
     product_ids = data['product_ids']
-    brands = data['brands']
 
     try:
-        idx = product_ids.index(product_id)
+        viewed_product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        idx = product_ids.index(viewed_product.product_id)
     except ValueError:
         return Response(
             {'error': 'Product not found in similarity matrix'},
             status=status.HTTP_404_NOT_FOUND
         )
 
-    viewed_brand = brands[idx]
     scores = matrix[idx]
+    order = np.argsort(-scores)
+    order = [i for i in order if i != idx]
 
-    candidates = [
-        (i, scores[i]) for i in range(len(product_ids)) if i != idx
-    ]
+    ranked_business_ids = [product_ids[i] for i in order]
 
-    same_brand = [(i, s) for i, s in candidates if brands[i] == viewed_brand]
-    cross_brand = [(i, s) for i, s in candidates if brands[i] != viewed_brand]
-
-    same_brand.sort(key=lambda x: x[1], reverse=True)
-    cross_brand.sort(key=lambda x: x[1], reverse=True)
-
-    top_candidates = same_brand[:3] + cross_brand[:2]
-
-    if len(top_candidates) < 5:
-        remaining = 5 - len(top_candidates)
-        leftover_pool = same_brand[3:] if len(same_brand) > 3 else cross_brand[2:]
-        top_candidates += leftover_pool[:remaining]
-
-    ranked_product_ids = [product_ids[i] for i, _ in top_candidates]
-
-    products_qs = Product.objects.filter(
-        id__in=ranked_product_ids, stock_quantity__gt=0
-    )
-    products_by_id = {p.id: p for p in products_qs}
+    candidates_qs = Product.objects.filter(
+        product_id__in=ranked_business_ids[:30], stock_quantity__gt=0
+    ).exclude(id=viewed_product.id)
+    products_by_business_id = {p.product_id: p for p in candidates_qs}
 
     ordered_results = []
-    for pid in ranked_product_ids:
-        if pid in products_by_id:
-            ordered_results.append(products_by_id[pid])
+    for bid in ranked_business_ids:
+        if bid in products_by_business_id:
+            ordered_results.append(products_by_business_id[bid])
         if len(ordered_results) >= 5:
             break
 
@@ -154,7 +150,6 @@ def personalized_homepage(request):
     except Exception:
         return featured_products(request._request)
 
-    # priority_spec anusaar sort garne column choose garne
     priority_sort_map = {
         'gaming': '-ram_gb',
         'performance': '-ram_gb',
@@ -170,7 +165,6 @@ def personalized_homepage(request):
         base_qs = base_qs.filter(price_npr__lte=pref.max_price)
 
     if pref.category == 'Both' or not pref.category:
-        # dubai category bata equal number linne, mix guarantee garna
         phones = base_qs.filter(category__name='Smartphone').order_by(sort_field)[:10]
         laptops = base_qs.filter(category__name='Laptop').order_by(sort_field)[:10]
         products = list(phones) + list(laptops)
