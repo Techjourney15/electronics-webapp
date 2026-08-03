@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+backend/electro_backend/recommender/
+backend/electro_backend/venv/
+backend/electro_backend/media/
+__pycache__/
+*.pyc
