@@ -28,3 +28,9 @@ backend/electro_backend/venv/
 backend/electro_backend/media/
 __pycache__/
 *.pyc
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/

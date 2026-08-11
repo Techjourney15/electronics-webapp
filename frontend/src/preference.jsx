@@ -6,17 +6,17 @@ const API = "http://127.0.0.1:8000/api";
 
 function SelectField({ label, value, onChange, options }) {
   return (
-    <div className="mb-6">
-      <label className="block mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#2f5fa8]">
+    <div className="mb-5">
+      <label className="block mb-2 text-xs font-semibold text-slate-300">
         {label}
       </label>
       <select
-        className="w-full rounded-2xl border border-[#c3d7f0]/70 bg-[rgba(238,243,251,0.7)] px-4 py-3.5 text-sm text-slate-900 outline-none transition duration-200 focus:border-[#2f5fa8] focus:ring-2 focus:ring-[#2f5fa8]/20"
+        className="w-full rounded-xl border border-slate-800/80 bg-[#090d16] px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-[#1d4ed8] focus:ring-1 focus:ring-[#1d4ed8]"
         value={value}
         onChange={onChange}
       >
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option key={opt.value} value={opt.value} className="bg-[#090d16] text-slate-100">
             {opt.label}
           </option>
         ))}
@@ -76,74 +76,67 @@ function Preference() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden text-slate-100">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(147,180,224,0.28),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(23,49,87,0.12),transparent_34%)]" />
-      <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(26,58,102,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(26,58,102,0.06)_1px,transparent_1px)] [background-size:72px_72px]" />
+    <main className="relative min-h-screen bg-[#070b14] text-slate-100 flex items-center justify-center px-4 py-10">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(24,75,255,0.18),transparent_40%)] pointer-events-none" />
 
-      <div className="relative flex min-h-screen items-center justify-center px-4 py-10">
-        <div className="mx-auto w-full max-w-[460px] rounded-[26px] border border-[#d3e0f5]/35 bg-[rgba(238,243,251,0.78)] p-3 shadow-[0_12px_48px_-12px_rgba(23,49,87,0.22)] backdrop-blur-xl">
-          <div className="rounded-[20px] border border-[#d3e0f5]/40 bg-[rgba(238,243,251,0.86)] p-6 backdrop-blur-lg sm:p-8">
-            <h1 className="text-[1.75rem] font-semibold tracking-[-0.04em] text-slate-900 sm:text-[2rem]">
-              Tell us your preferences
-            </h1>
-            <p className="mt-2 mb-8 text-sm leading-6 text-slate-700">
-              We'll personalize your recommendations based on what you tell us.
-            </p>
+      <div className="relative mx-auto w-full max-w-[440px] rounded-2xl border border-slate-800/80 bg-[#0c1322]/90 p-8 shadow-2xl backdrop-blur-xl">
+        <h1 className="text-2xl font-bold tracking-tight text-white">
+          Tell us your preferences
+        </h1>
+        <p className="mt-2 mb-6 text-sm text-slate-400">
+          We'll personalize your recommendations based on what you tell us.
+        </p>
 
-            <SelectField
-              label="Category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              options={[
-                { value: "Smartphone", label: "Smartphone" },
-                { value: "Laptop", label: "Laptop" },
-                { value: "Both", label: "Both" },
-              ]}
-            />
+        <SelectField
+          label="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          options={[
+            { value: "Smartphone", label: "Smartphone" },
+            { value: "Laptop", label: "Laptop" },
+            { value: "Both", label: "Both" },
+          ]}
+        />
 
-            <SelectField
-              label="Budget"
-              value={budget}
-              onChange={(e) => setBudget(e.target.value)}
-              options={[
-                { value: "under20", label: "Under Rs. 20,000" },
-                { value: "20-60", label: "Rs. 20,000 – 60,000" },
-                { value: "60-100", label: "Rs. 60,000 – 1,00,000" },
-                { value: "100-200", label: "Rs. 1,00,000 – 2,00,000" },
-                { value: "200plus", label: "Above Rs. 2,00,000" },
-              ]}
-            />
+        <SelectField
+          label="Budget"
+          value={budget}
+          onChange={(e) => setBudget(e.target.value)}
+          options={[
+            { value: "under20", label: "Under Rs. 20,000" },
+            { value: "20-60", label: "Rs. 20,000 – 60,000" },
+            { value: "60-100", label: "Rs. 60,000 – 1,00,000" },
+            { value: "100-200", label: "Rs. 1,00,000 – 2,00,000" },
+            { value: "200plus", label: "Above Rs. 2,00,000" },
+          ]}
+        />
 
-            <SelectField
-              label="Priority"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-              options={[
-                { value: "camera", label: "Camera" },
-                { value: "battery", label: "Battery" },
-                { value: "gaming", label: "Gaming" },
-                { value: "performance", label: "Performance" },
-              ]}
-            />
+        <SelectField
+          label="Priority"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          options={[
+            { value: "camera", label: "Camera" },
+            { value: "battery", label: "Battery" },
+            { value: "gaming", label: "Gaming" },
+            { value: "performance", label: "Performance" },
+          ]}
+        />
 
-            {error && (
-              <p className="mb-4 text-sm font-medium text-red-600">{error}</p>
-            )}
+        {error && (
+          <p className="mb-4 text-sm font-medium text-red-400">{error}</p>
+        )}
 
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="relative mt-2 flex w-full items-center justify-center overflow-hidden rounded-2xl border border-[#93b4e0] bg-[linear-gradient(120deg,#93b4e0_0%,#c3d7f0_55%,#2f5fa8_100%)] px-4 py-3.5 text-sm font-semibold text-[#1a3a66] shadow-[0_0_28px_rgba(23,49,87,0.22)] transition duration-300 hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-[#2f5fa8]/25 disabled:opacity-60"
-            >
-              <span className="relative">
-                {loading ? "Saving…" : "Continue to homepage"}
-              </span>
-              {loading && (
-                <span className="relative ml-3 h-2.5 w-2.5 animate-pulse rounded-full bg-[#1a3a66]" />
-              )}
-            </button>
-          </div>
-        </div>
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="mt-2 flex w-full items-center justify-center rounded-xl bg-[#1d4ed8] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-[#1e40af] focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
+        >
+          <span>{loading ? "Saving…" : "Continue to homepage"}</span>
+          {loading && (
+            <span className="ml-3 h-2 w-2 animate-pulse rounded-full bg-white" />
+          )}
+        </button>
       </div>
     </main>
   );
