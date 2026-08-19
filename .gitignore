@@ -5,10 +5,12 @@ node_modules/
 __pycache__/
 *.pyc
 db.sqlite3
+media/
 dist/
 dist-ssr/
 .vscode/
 .DS_Store
 backend/electro_backend/recommender/similarity_cache/
-backend/electro_backend/recommender/similarity_matrix.pkl
+backend/electro_backend/recommender/visual_search/image_features.pkl
+backend/electro_backend/recommender/product_embeddings.pkl
 "@ | Out-File -Encoding utf8 .gitignore

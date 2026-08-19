@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import deviceImage from "./assets/Mobile.webp"; // background photo ko lagi
 import { useNavigate } from "react-router-dom";
 
 const API_BASE = 'http://127.0.0.1:8000/api'
+const MEDIA_BASE = 'http://127.0.0.1:8000'
 
 // input field component — email, password, name sabai yehi use garcha
 function FloatingField({ id, label, type = 'text', value, onChange, autoComplete }) {
@@ -16,10 +17,176 @@ function FloatingField({ id, label, type = 'text', value, onChange, autoComplete
         onChange={onChange}
         autoComplete={autoComplete}
         placeholder={label}
-        className="w-full rounded-2xl border border-[#c3d7f0]/70 bg-[rgba(238,243,251,0.55)] px-4 py-3.5 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-[#2f5fa8] focus:ring-2 focus:ring-[#2f5fa8]/20"
+        className="w-full rounded-2xl border border-slate-700 bg-[#1A1D2E] px-4 py-3.5 text-sm text-white outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
       />
     </label> 
   )
+}
+
+// left side branding — NEXORA title, tagline, spec badges, stats, ra sliding product card
+function LeftSection() {
+  const [carouselProducts, setCarouselProducts] = useState([]);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  // featured products backend bata lyaune, carousel ko lagi
+  useEffect(() => {
+    axios
+      .get(`${API_BASE}/catalog/products/featured/`)
+      .then((res) => setCarouselProducts(res.data.slice(0, 5)))
+      .catch(() => {});
+  }, []);
+
+  // 2.5 second ma euta pataka automatically arko product ma slide garne
+  useEffect(() => {
+    if (carouselProducts.length === 0) return;
+    const timer = setInterval(() => {
+      setCarouselIndex((i) => (i + 1) % carouselProducts.length);
+    }, 2500);
+    return () => clearInterval(timer);
+  }, [carouselProducts]);
+
+  const current = carouselProducts[carouselIndex];
+  const currentImage = current?.image
+    ? (current.image.startsWith("http") ? current.image : `${MEDIA_BASE}${current.image}`)
+    : deviceImage;
+
+  return (
+    <section className="hidden lg:flex flex-col justify-center px-16">
+      <style>{`
+        @keyframes ultraSmoothReveal {
+          0% {
+            opacity: 0;
+            transform: translateY(14px) scale(0.92);
+            filter: blur(10px);
+          }
+          60% {
+            filter: blur(0px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0px);
+          }
+        }
+        @keyframes smoothShimmer {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
+
+      {/* NEXORA letter-by-letter reveal title */}
+      <h1 className="flex text-[90px] leading-none font-black tracking-tight select-none">
+        {"NEXORA".split("").map((char, index) => (
+          <span
+            key={index}
+            style={{
+              animation: `ultraSmoothReveal 3s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.07}s forwards`,
+              opacity: 0,
+              willChange: "transform, opacity, filter",
+            }}
+            className="
+              inline-block
+              bg-gradient-to-r
+              from-[#2563EB]
+              via-[#F59E0B]
+              to-[#FF5500]
+              bg-[length:200%_auto]
+              bg-clip-text
+              text-transparent
+              drop-shadow-[0_0_35px_rgba(255,85,0,0.35)]
+              animate-[smoothShimmer_4s_ease-in-out_infinite]
+            "
+          >
+            {char}
+          </span>
+        ))}
+      </h1>
+
+      <p className="mt-4 max-w-md text-base leading-7 text-slate-400">
+        Verified smartphones and laptops, checked spec by spec — buy and sell with
+        a marketplace built for tech.
+      </p>
+
+      {/* Spec badges */}
+      <div className="mt-10 flex flex-wrap gap-3">
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">128GB</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">5G</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">A17 Pro</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">16GB RAM</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">RTX 4060</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">512GB SSD</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">Snapdragon 8 Gen 3</span>
+      </div>
+
+      {/* Stats */}
+      <div className="mt-10 grid max-w-md grid-cols-3 gap-6">
+        <div>
+          <h2 className="text-3xl font-bold">12,400+</h2>
+          <p className="mt-1 text-xs uppercase tracking-wider text-slate-500">Devices Listed</p>
+        </div>
+        <div>
+          <h2 className="text-3xl font-bold">98.2%</h2>
+          <p className="mt-1 text-xs uppercase tracking-wider text-slate-500">On-Time Delivery</p>
+        </div>
+        <div>
+          <h2 className="text-3xl font-bold">4.8/5</h2>
+          <p className="mt-1 text-xs uppercase tracking-wider text-slate-500">Buyer Rating</p>
+        </div>
+      </div>
+
+      {/* Featured Device Card — real products, auto-slides every 2.5s */}
+      <div className="relative mt-8 w-[340px] overflow-hidden rounded-2xl border border-slate-700/80 bg-gradient-to-br from-[#1D3363] via-[#16213F] to-[#111827] shadow-2xl">
+        <img
+          src={currentImage}
+          alt={current?.product_name || "Featured device"}
+          className="h-[190px] w-full object-cover opacity-80"
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+        {carouselProducts.length > 1 && (
+          <>
+            <button
+              onClick={() => setCarouselIndex((i) => (i - 1 + carouselProducts.length) % carouselProducts.length)}
+              className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/40 backdrop-blur text-white"
+            >
+              ❮
+            </button>
+            <button
+              onClick={() => setCarouselIndex((i) => (i + 1) % carouselProducts.length)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/40 backdrop-blur text-white"
+            >
+              ❯
+            </button>
+          </>
+        )}
+
+        <div className="absolute bottom-0 w-full p-6">
+          <div className="inline-flex items-center rounded-full bg-amber-500/20 px-3 py-1 text-xs text-amber-300">
+            🔥 Just launched
+          </div>
+
+          <h3 className="mt-4 text-3xl font-bold">
+            {current?.product_name || "Loading…"}
+          </h3>
+
+          <p className="mt-2 text-lg text-white/90">
+            {current ? `Rs ${current.price_npr?.toLocaleString()}` : ""}
+          </p>
+
+          <div className="mt-5 flex justify-end gap-2">
+            {carouselProducts.map((_, i) => (
+              <span
+                key={i}
+                className={`h-2 w-2 rounded-full ${i === carouselIndex ? "bg-white" : "bg-white/40"}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function Auth() {
@@ -59,6 +226,8 @@ function Auth() {
 
         if (who.data.role === 'seller') {
           navigate(who.data.is_seller_profile_complete ? '/seller-dashboard' : '/seller-onboarding')
+        } else if (who.data.role === 'admin') {
+          navigate('/admin-dashboard')
         } else {
           const prefCheck = await axios.get(`${API_BASE}/auth/has-preferences/`, {
             headers: { Authorization: `Bearer ${response.data.access}` },
@@ -101,75 +270,46 @@ function Auth() {
 
   return (
     <main className="relative min-h-screen overflow-hidden text-slate-100">
-      {/* photo maathi blue-tint overlay halera theme sanga blend garne */}
+      {/* photo maathi dark navy overlay halera theme sanga blend garne */}
       <div className="absolute inset-0">
         <img
           src={deviceImage}
           alt="Smartphone and laptop showcase"
           className="h-full w-full object-cover object-[center_24%]"
         />
-        {/* blue gradient overlay — photo lai blue theme sanga match garaune */}
-        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(11,26,58,0.75)_0%,rgba(23,49,87,0.55)_45%,rgba(47,95,168,0.35)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(147,180,224,0.25),transparent_35%)]" />
+        {/* dark navy gradient overlay — photo lai dark theme sanga match garaune */}
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(10,13,24,0.92)_0%,rgba(17,24,39,0.85)_45%,rgba(30,41,59,0.65)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.18),transparent_35%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(217,119,6,0.15),transparent_40%)]" />
       </div>
 
-      {/* subtle grid pattern, blue tone ma */}
-      <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(195,215,240,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(195,215,240,0.15)_1px,transparent_1px)] [background-size:72px_72px]" />
+      {/* subtle grid pattern, dark theme ma */}
+      <div className="absolute inset-0 opacity-15 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:72px_72px]" />
 
       <div className="relative grid min-h-screen lg:grid-cols-[1.12fr_0.88fr]">
-        {/* left side — animated NEXORA branding, letter by letter reveal */}
-      <section className="relative hidden lg:flex items-center justify-center px-12">
-        <div className="text-center">
-          <div className="flex justify-center gap-1 sm:gap-2">
-            {"NEXORA".split("").map((letter, index) => (
-              <span
-                key={index}
-                className="text-7xl font-bold tracking-tight xl:text-8xl bg-clip-text text-transparent"
-                style={{
-                  backgroundImage: 'linear-gradient(90deg, #93b4e0, #ffffff, #2f5fa8, #93b4e0)',
-                  backgroundSize: '300% auto',
-                  animation: `letterReveal 0.6s ease-out forwards, gradientShift 4s ease-in-out infinite`,
-                  animationDelay: `${index * 0.12}s, ${0.6 + index * 0.12}s`,
-                  opacity: 0,
-                }}
-              >
-                {letter}
-              </span>
-            ))}
-          </div>
-          <p
-            className="mt-6 text-lg text-slate-200"
-            style={{
-              animation: 'letterReveal 0.8s ease-out forwards',
-              animationDelay: '0.9s',
-              opacity: 0,
-            }}
-          >
-            Your trusted marketplace for smartphones and laptops
-          </p>
-        </div>
-      </section>
+        {/* left side — animated NEXORA branding, badges, stats, sliding product card */}
+        <LeftSection />
 
-        {/* form card — light background, photo ko upar */}
+        {/* form card — dark background, photo ko upar */}
         <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 lg:-translate-x-8 lg:px-8 lg:py-0">
-          <div className="mx-auto w-full max-w-[380px] rounded-[26px] border border-[#93b4e0]/40 bg-[rgba(238,243,251,0.35)] p-3 shadow-[0_20px_60px_-12px_rgba(11,26,58,0.55)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 sm:p-4">
-            <div className="rounded-[20px] border border-[#93b4e0]/30 bg-[rgba(238,243,251,0.4)] p-4 backdrop-blur-lg transition-all duration-300 sm:p-5">
+          <div className="mx-auto w-full max-w-[380px] rounded-[26px] border border-slate-700/60 bg-[#111827]/70 p-3 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 sm:p-4">
+            <div className="rounded-[20px] border border-slate-700/50 bg-[#111827]/85 p-4 backdrop-blur-lg transition-all duration-300 sm:p-5">
               <div className="flex items-center justify-between gap-3 pb-5">
                 <div className="flex items-center gap-3">
-                  <div className="h-11 w-11 rounded-2xl border border-[#93b4e0] bg-[#e3edfa] p-2 shadow-[0_0_24px_rgba(23,49,87,0.18)]">
+                  <div className="h-11 w-11 rounded-2xl border border-slate-700 bg-[#1A1D2E] p-2 shadow-[0_0_24px_rgba(37,99,235,0.25)]">
                     <Logo />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">Nexora</p>
+                    <p className="text-sm font-semibold text-white">Nexora</p>
                   </div>
                 </div>
                 {/* Sign In / Create Account toggle */}
-                <div className="flex rounded-full border border-[#c3d7f0] bg-[#e3edfa] p-1">
+                <div className="flex rounded-full border border-slate-700 bg-[#1A1D2E] p-1">
                   <button
                     type="button"
                     onClick={() => { setMode('signup'); setError('') }}
                     className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                      !isSignIn ? 'bg-[#2f5fa8] text-white' : 'text-slate-600'
+                      !isSignIn ? 'bg-blue-600 text-white' : 'text-slate-400'
                     }`}
                   >
                     Create Account
@@ -178,7 +318,7 @@ function Auth() {
                     type="button"
                     onClick={() => { setMode('signin'); setError('') }}
                     className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                      isSignIn ? 'bg-[#2f5fa8] text-white' : 'text-slate-600'
+                      isSignIn ? 'bg-blue-600 text-white' : 'text-slate-400'
                     }`}
                   >
                     Sign In
@@ -189,22 +329,22 @@ function Auth() {
               <div className="flex min-h-[340px] items-center py-2">
                 <div className="w-full space-y-6 transition-all duration-300 ease-out">
                   <div className="space-y-3">
-                    <h2 className="text-[1.75rem] font-semibold tracking-[-0.04em] text-slate-900 sm:text-[2rem]">
+                    <h2 className="text-[1.75rem] font-semibold tracking-[-0.04em] text-white sm:text-[2rem]">
                       {title}
                     </h2>
-                    {copy ? <p className="text-sm leading-6 text-slate-700">{copy}</p> : null}
+                    {copy ? <p className="text-sm leading-6 text-slate-400">{copy}</p> : null}
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
                     {/* signup bela matra dekhine: role toggle + name field */}
                     {!isSignIn && (
                       <>
-                        <div className="flex rounded-full border border-[#c3d7f0] bg-[#e3edfa] p-1">
+                        <div className="flex rounded-full border border-slate-700 bg-[#1A1D2E] p-1">
                           <button
                             type="button"
                             onClick={() => setRole('customer')}
                             className={`flex-1 rounded-full px-3 py-2 text-xs font-semibold transition ${
-                              role === 'customer' ? 'bg-[#2f5fa8] text-white' : 'text-slate-600'
+                              role === 'customer' ? 'bg-blue-600 text-white' : 'text-slate-400'
                             }`}
                           >
                             I'm a Customer
@@ -213,7 +353,7 @@ function Auth() {
                             type="button"
                             onClick={() => setRole('seller')}
                             className={`flex-1 rounded-full px-3 py-2 text-xs font-semibold transition ${
-                              role === 'seller' ? 'bg-[#2f5fa8] text-white' : 'text-slate-600'
+                              role === 'seller' ? 'bg-blue-600 text-white' : 'text-slate-400'
                             }`}
                           >
                             I'm a Seller
@@ -233,7 +373,7 @@ function Auth() {
                     <FloatingField
                       id="email"
                       label="Email"
-                      type="email"
+                      type="text"
                       value={form.email}
                       onChange={updateField('email')}
                       autoComplete="email"
@@ -250,7 +390,7 @@ function Auth() {
 
                     {/* error/success message, color le differentiate garne */}
                     {error && (
-                      <p className={`text-sm font-medium ${isSuccessMessage ? 'text-green-700' : 'text-red-600'}`}>
+                      <p className={`text-sm font-medium ${isSuccessMessage ? 'text-green-400' : 'text-red-400'}`}>
                         {error}
                       </p>
                     )}
@@ -258,16 +398,16 @@ function Auth() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="relative mt-2 flex w-full items-center justify-center overflow-hidden rounded-2xl border border-[#93b4e0] bg-[linear-gradient(120deg,#93b4e0_0%,#c3d7f0_55%,#2f5fa8_100%)] px-4 py-3.5 text-sm font-semibold text-[#1a3a66] shadow-[0_0_28px_rgba(23,49,87,0.22)] transition duration-300 hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-[#2f5fa8]/25 disabled:opacity-60"
+                      className="relative mt-2 flex w-full items-center justify-center overflow-hidden rounded-2xl border border-blue-500/50 bg-blue-600 px-4 py-3.5 text-sm font-semibold text-white shadow-[0_0_28px_rgba(37,99,235,0.35)] transition duration-300 hover:scale-[1.01] hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25 disabled:opacity-60"
                     >
-                      <span className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.55),transparent)] opacity-60 transition-transform duration-700 hover:translate-x-full" />
+                      <span className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent)] opacity-60 transition-transform duration-700 hover:translate-x-full" />
                       <span className="relative">
                         {isSubmitting
                           ? (isSignIn ? 'Signing in…' : 'Creating your account…')
                           : (isSignIn ? 'Continue to dashboard' : 'Create account')}
                       </span>
                       {isSubmitting && (
-                        <span className="relative ml-3 h-2.5 w-2.5 animate-pulse rounded-full bg-[#1a3a66]" />
+                        <span className="relative ml-3 h-2.5 w-2.5 animate-pulse rounded-full bg-white" />
                       )}
                     </button>
                   </form>
@@ -281,7 +421,7 @@ function Auth() {
   )
 }
 
-// Nexora logo, blue gradient sanga
+// Nexora logo, blue-amber gradient sanga
 function Logo() {
   return (
     <svg
@@ -293,9 +433,9 @@ function Logo() {
     >
       <defs>
         <linearGradient id="nexoraNodeGradient" x1="12" y1="10" x2="68" y2="72" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#93b4e0" />
-          <stop offset="0.5" stopColor="#2f5fa8" />
-          <stop offset="1" stopColor="#173157" />
+          <stop stopColor="#FFE7AE" />
+          <stop offset="0.5" stopColor="#f4bb60" />
+          <stop offset="1" stopColor="#B88942" />
         </linearGradient>
       </defs>
 
