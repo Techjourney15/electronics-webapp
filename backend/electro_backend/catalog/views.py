@@ -431,6 +431,7 @@ def _load_search_embeddings():
 @permission_classes([AllowAny])
 def semantic_search(request):
     query = request.GET.get('q', '').strip()
+    category = request.GET.get('category', '').strip()
     if not query:
         return Response({'count': 0, 'results': []})
 
@@ -465,6 +466,8 @@ def semantic_search(request):
     matched_product_ids = [data['product_ids'][i] for i in relevant_indices]
 
     products_qs = Product.objects.filter(id__in=matched_product_ids, stock_quantity__gt=0)
+    if category:
+        products_qs = products_qs.filter(category__name=category)
     products_by_id = {p.id: p for p in products_qs}
 
     ordered_results = [products_by_id[pid] for pid in matched_product_ids if pid in products_by_id]
