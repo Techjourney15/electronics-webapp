@@ -166,17 +166,17 @@ function SellerDashboard() {
   ];
 
   return (
-    <main className="relative min-h-screen bg-[#070c18] text-slate-100 px-4 py-10 sm:px-8 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))]">
+    <main className="relative min-h-screen bg-[#0A0D18] text-slate-100 px-4 py-10 sm:px-8 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(37,99,235,0.12),rgba(255,255,255,0))]">
       <div className="mx-auto max-w-5xl">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-[#5182f6] via-[#a38bd2] to-[#f3a251] bg-clip-text text-transparent">
-            Seller Dashboard
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-[#2563EB] via-[#F59E0B] to-[#FF5500] bg-clip-text text-transparent">
+            Nexora 
           </h1>
           <button
             onClick={handleLogout}
-            className="rounded-full border border-slate-700/80 bg-slate-900/60 px-5 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+            className="rounded-full border border-slate-700/80 bg-[#111827]/60 px-5 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Log out
           </button>
@@ -184,13 +184,13 @@ function SellerDashboard() {
 
         {/* Business Profile Card */}
         {sellerInfo && (
-          <div className="mb-6 rounded-2xl border border-slate-800 bg-[#0d1527]/80 p-6 backdrop-blur-md shadow-xl">
+          <div className="mb-6 rounded-2xl border border-slate-700/60 bg-[#111827]/85 p-6 backdrop-blur-md shadow-xl">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold tracking-wide text-slate-200">Business Profile</h2>
               {!isEditingProfile && (
                 <button
                   onClick={() => setIsEditingProfile(true)}
-                  className="rounded-full border border-slate-700 bg-slate-800/80 px-3 py-1 text-xs font-medium text-blue-400 hover:border-blue-500 hover:text-blue-300 transition"
+                  className="rounded-full border border-slate-700 bg-[#1A1D2E] px-3 py-1 text-xs font-medium text-blue-400 hover:border-blue-500 hover:text-blue-300 transition"
                 >
                   Edit profile
                 </button>
@@ -223,25 +223,25 @@ function SellerDashboard() {
                     placeholder="Business name"
                     value={profileForm.business_name}
                     onChange={(e) => setProfileForm((f) => ({ ...f, business_name: e.target.value }))}
-                    className="rounded-xl border border-slate-700 bg-[#131c31] px-3.5 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
+                    className="rounded-xl border border-slate-700 bg-[#1A1D2E] px-3.5 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
                   />
                   <input
                     placeholder="Contact info"
                     value={profileForm.contact_info}
                     onChange={(e) => setProfileForm((f) => ({ ...f, contact_info: e.target.value }))}
-                    className="rounded-xl border border-slate-700 bg-[#131c31] px-3.5 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
+                    className="rounded-xl border border-slate-700 bg-[#1A1D2E] px-3.5 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
                   />
                   <input
                     placeholder="Owner name"
                     value={profileForm.first_name}
                     onChange={(e) => setProfileForm((f) => ({ ...f, first_name: e.target.value }))}
-                    className="rounded-xl border border-slate-700 bg-[#131c31] px-3.5 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
+                    className="rounded-xl border border-slate-700 bg-[#1A1D2E] px-3.5 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
                   />
                   <input
                     placeholder="Email"
                     value={profileForm.email}
                     onChange={(e) => setProfileForm((f) => ({ ...f, email: e.target.value }))}
-                    className="rounded-xl border border-slate-700 bg-[#131c31] px-3.5 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
+                    className="rounded-xl border border-slate-700 bg-[#1A1D2E] px-3.5 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
                   />
                 </div>
 
@@ -275,7 +275,7 @@ function SellerDashboard() {
         )}
         {verificationStatus === 'approved' && (
           <div className="mb-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-400 backdrop-blur-md">
-            ✅ Your seller account is verified. You can now list products.
+             Your seller account is verified. You can now list products.
           </div>
         )}
         {verificationStatus === 'rejected' && (
@@ -286,8 +286,8 @@ function SellerDashboard() {
 
         {error && <p className="mb-4 text-sm font-medium text-red-400">{error}</p>}
 
-        {/* Tabs - Pill toggle style matching UI */}
-        <div className="inline-flex rounded-full border border-slate-800 bg-[#0b1222] p-1.5 shadow-inner">
+        {/* Tabs */}
+        <div className="inline-flex rounded-full border border-slate-700/60 bg-[#111827] p-1.5 shadow-inner">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -312,7 +312,7 @@ function SellerDashboard() {
               {loading ? (
                 <p className="text-sm text-slate-400">Loading…</p>
               ) : products.length === 0 ? (
-                <div className="rounded-2xl border border-slate-800 bg-[#0d1527]/60 p-12 text-center backdrop-blur-md">
+                <div className="rounded-2xl border border-slate-700/60 bg-[#111827]/70 p-12 text-center backdrop-blur-md">
                   <p className="text-sm text-slate-400">You haven't listed any products yet.</p>
                   <div className="mt-5 flex justify-center gap-3">
                     <button
@@ -335,9 +335,9 @@ function SellerDashboard() {
                     <div
                       key={p.id}
                       onClick={() => navigate(`/product/${p.id}`)}
-                      className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-800/80 bg-[#0d1527] transition-all hover:-translate-y-1 hover:border-slate-700 hover:shadow-xl hover:shadow-blue-950/30"
+                      className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-700/60 bg-[#111827] transition-all hover:-translate-y-1 hover:border-slate-600 hover:shadow-xl hover:shadow-blue-950/30"
                     >
-                      <div className="aspect-square w-full bg-slate-900/50 p-4 flex items-center justify-center overflow-hidden">
+                      <div className="aspect-square w-full bg-[#1A1D2E] p-4 flex items-center justify-center overflow-hidden">
                         {p.image ? (
                           <img
                             src={p.image.startsWith("http") ? p.image : `${MEDIA_BASE}${p.image}`}
@@ -351,7 +351,7 @@ function SellerDashboard() {
                           </div>
                         )}
                       </div>
-                      <div className="p-4 border-t border-slate-800/60">
+                      <div className="p-4 border-t border-slate-700/50">
                         <p className="font-semibold text-slate-100 truncate">{p.product_name}</p>
                         <p className="text-xs text-blue-400 mt-0.5">Product ID: {p.id}</p>
                         <div className="mt-3 flex items-center justify-between">
@@ -370,29 +370,29 @@ function SellerDashboard() {
           {activeTab === "add" && (
             <form
               onSubmit={handleAddProduct}
-              className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-800 bg-[#0d1527]/90 p-6 sm:grid-cols-2 backdrop-blur-md shadow-2xl"
+              className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-700/60 bg-[#111827]/90 p-6 sm:grid-cols-2 backdrop-blur-md shadow-2xl"
             >
               <select
                 value={form.category}
                 onChange={updateField("category")}
-                className="rounded-xl border border-slate-700 bg-[#131c31] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500"
+                className="rounded-xl border border-slate-700 bg-[#1A1D2E] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500"
                 required
               >
-                <option value="" className="bg-[#0d1527] text-slate-400">Select Category</option>
+                <option value="" className="bg-[#111827] text-slate-400">Select Category</option>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id} className="bg-[#0d1527] text-slate-100">{c.name}</option>
+                  <option key={c.id} value={c.id} className="bg-[#111827] text-slate-100">{c.name}</option>
                 ))}
               </select>
 
               <select
                 value={form.brand}
                 onChange={updateField("brand")}
-                className="rounded-xl border border-slate-700 bg-[#131c31] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500"
+                className="rounded-xl border border-slate-700 bg-[#1A1D2E] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500"
                 required
               >
-                <option value="" className="bg-[#0d1527] text-slate-400">Select Brand</option>
+                <option value="" className="bg-[#111827] text-slate-400">Select Brand</option>
                 {brands.map((b) => (
-                  <option key={b.id} value={b.id} className="bg-[#0d1527] text-slate-100">{b.name}</option>
+                  <option key={b.id} value={b.id} className="bg-[#111827] text-slate-100">{b.name}</option>
                 ))}
               </select>
 
@@ -402,7 +402,7 @@ function SellerDashboard() {
                   placeholder={key.replace(/_/g, " ")}
                   value={form[key]}
                   onChange={updateField(key)}
-                  className="rounded-xl border border-slate-700 bg-[#131c31] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500 capitalize"
+                  className="rounded-xl border border-slate-700 bg-[#1A1D2E] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500 capitalize"
                 />
               ))}
 
@@ -413,7 +413,7 @@ function SellerDashboard() {
                   placeholder={key.replace(/_/g, " ")}
                   value={form[key]}
                   onChange={updateField(key)}
-                  className="rounded-xl border border-slate-700 bg-[#131c31] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500 capitalize"
+                  className="rounded-xl border border-slate-700 bg-[#1A1D2E] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500 capitalize"
                 />
               ))}
 
@@ -429,23 +429,23 @@ function SellerDashboard() {
 
           {/* ---- Browse & Claim Tab ---- */}
           {activeTab === "browse" && (
-            <div className="rounded-2xl border border-slate-800 bg-[#0d1527]/90 p-6 backdrop-blur-md shadow-2xl">
+            <div className="rounded-2xl border border-slate-700/60 bg-[#111827]/90 p-6 backdrop-blur-md shadow-2xl">
               <h2 className="mb-4 text-lg font-semibold text-slate-100">List an Existing Product</h2>
               <div className="mb-6 flex flex-wrap gap-3">
                 <select
                   value={browseCategory}
                   onChange={(e) => setBrowseCategory(e.target.value)}
-                  className="rounded-xl border border-slate-700 bg-[#131c31] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500"
+                  className="rounded-xl border border-slate-700 bg-[#1A1D2E] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500"
                 >
-                  <option value="" className="bg-[#0d1527]">All Categories</option>
-                  <option value="Smartphone" className="bg-[#0d1527]">Smartphone</option>
-                  <option value="Laptop" className="bg-[#0d1527]">Laptop</option>
+                  <option value="" className="bg-[#111827]">All Categories</option>
+                  <option value="Smartphone" className="bg-[#111827]">Smartphone</option>
+                  <option value="Laptop" className="bg-[#111827]">Laptop</option>
                 </select>
                 <input
                   placeholder="Search (e.g. Vivo, laptop model name)"
                   value={browseQuery}
                   onChange={(e) => setBrowseQuery(e.target.value)}
-                  className="flex-1 rounded-xl border border-slate-700 bg-[#131c31] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
+                  className="flex-1 rounded-xl border border-slate-700 bg-[#1A1D2E] px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
                 />
                 <button
                   onClick={searchUnclaimed}
@@ -459,7 +459,7 @@ function SellerDashboard() {
                 {browseResults.map((p) => (
                   <div
                     key={p.id}
-                    className="overflow-hidden rounded-xl border border-slate-800 bg-[#131c31]/80 hover:border-slate-700 transition"
+                    className="overflow-hidden rounded-xl border border-slate-700/60 bg-[#1A1D2E]/80 hover:border-slate-600 transition"
                   >
                     <div
                       onClick={() => navigate(`/product/${p.id}`)}
@@ -485,7 +485,7 @@ function SellerDashboard() {
                       </div>
                     </div>
 
-                    <div className="px-3.5 pb-3.5 border-t border-slate-800/50">
+                    <div className="px-3.5 pb-3.5 border-t border-slate-700/40">
                       {claimingId === p.id ? (
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                           <input
@@ -493,14 +493,14 @@ function SellerDashboard() {
                             placeholder="Your price (Rs.)"
                             value={claimPrice}
                             onChange={(e) => setClaimPrice(e.target.value)}
-                            className="w-36 rounded-lg border border-slate-700 bg-[#0d1527] px-3 py-1.5 text-xs text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
+                            className="w-36 rounded-lg border border-slate-700 bg-[#111827] px-3 py-1.5 text-xs text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
                           />
                           <input
                             type="number"
                             placeholder="Stock"
                             value={claimStock}
                             onChange={(e) => setClaimStock(e.target.value)}
-                            className="w-28 rounded-lg border border-slate-700 bg-[#0d1527] px-3 py-1.5 text-xs text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
+                            className="w-28 rounded-lg border border-slate-700 bg-[#111827] px-3 py-1.5 text-xs text-slate-100 outline-none focus:border-blue-500 placeholder-slate-500"
                           />
                           <button
                             onClick={() => handleClaim(p.id)}

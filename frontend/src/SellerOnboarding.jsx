@@ -36,17 +36,17 @@ function SellerOnboarding() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f6efe3] text-slate-900">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(214,176,126,0.28),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(141,109,72,0.12),transparent_34%)]" />
-      <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(95,74,44,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(95,74,44,0.06)_1px,transparent_1px)] [background-size:72px_72px]" />
+    <main className="relative min-h-screen overflow-hidden bg-[#0A0D18] text-slate-100">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.18),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(217,119,6,0.12),transparent_34%)]" />
+      <div className="absolute inset-0 opacity-15 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:72px_72px]" />
 
       <div className="relative flex min-h-screen items-center justify-center px-4 py-10">
-        <div className="mx-auto w-full max-w-[460px] rounded-[26px] border border-[#E6E1D5]/35 bg-[rgba(255,252,246,0.78)] p-3 shadow-[0_12px_48px_-12px_rgba(141,109,72,0.22)] backdrop-blur-xl">
-          <div className="rounded-[20px] border border-[#E6E1D5]/40 bg-[rgba(255,252,246,0.86)] p-6 backdrop-blur-lg sm:p-8">
-            <h1 className="text-[1.75rem] font-semibold tracking-[-0.04em] text-slate-900 sm:text-[2rem]">
+        <div className="mx-auto w-full max-w-[460px] rounded-[26px] border border-slate-700/60 bg-[#111827]/70 p-3 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+          <div className="rounded-[20px] border border-slate-700/50 bg-[#111827]/85 p-6 backdrop-blur-lg sm:p-8">
+            <h1 className="text-[1.75rem] font-semibold tracking-[-0.04em] text-white sm:text-[2rem]">
               Set up your seller profile
             </h1>
-            <p className="mt-2 mb-8 text-sm leading-6 text-slate-700">
+            <p className="mt-2 mb-8 text-sm leading-6 text-slate-400">
               Tell us about your business so we can verify and list your products.
             </p>
 
@@ -57,7 +57,7 @@ function SellerOnboarding() {
                   placeholder="Business Name"
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
-                  className="w-full rounded-2xl border border-[#dfd0b8]/70 bg-[rgba(251,247,239,0.55)] px-4 py-3.5 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-[#9d7b55] focus:ring-2 focus:ring-[#9d7b55]/20"
+                  className="w-full rounded-2xl border border-slate-700 bg-[#1A1D2E] px-4 py-3.5 text-sm text-white outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   required
                 />
               </label>
@@ -68,19 +68,19 @@ function SellerOnboarding() {
                   placeholder="Contact Info (phone number)"
                   value={contactInfo}
                   onChange={(e) => setContactInfo(e.target.value)}
-                  className="w-full rounded-2xl border border-[#dfd0b8]/70 bg-[rgba(251,247,239,0.55)] px-4 py-3.5 text-sm text-slate-900 outline-none transition duration-200 placeholder:text-slate-500 focus:border-[#9d7b55] focus:ring-2 focus:ring-[#9d7b55]/20"
+                  className="w-full rounded-2xl border border-slate-700 bg-[#1A1D2E] px-4 py-3.5 text-sm text-white outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   required
                 />
               </label>
 
               {error && (
-                <p className="text-sm font-medium text-red-600">{error}</p>
+                <p className="text-sm font-medium text-red-400">{error}</p>
               )}
 
               <button
                 type="submit"
                 disabled={loading}
-                className="relative mt-2 flex w-full items-center justify-center overflow-hidden rounded-2xl border border-[#d9c6a7] bg-[linear-gradient(120deg,#d9c6a7_0%,#f2e4cc_55%,#b69468_100%)] px-4 py-3.5 text-sm font-semibold text-[#4d3824] shadow-[0_0_28px_rgba(141,109,72,0.22)] transition duration-300 hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-[#9d7b55]/25 disabled:opacity-60"
+                className="relative mt-2 flex w-full items-center justify-center overflow-hidden rounded-2xl border border-blue-500/50 bg-blue-600 px-4 py-3.5 text-sm font-semibold text-white shadow-[0_0_28px_rgba(37,99,235,0.35)] transition duration-300 hover:scale-[1.01] hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25 disabled:opacity-60"
               >
                 <span className="relative">
                   {loading ? "Saving…" : "Continue to seller dashboard"}

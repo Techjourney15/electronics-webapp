@@ -1,91 +1,103 @@
+import os
+import json
+import pickle
+import tempfile
+import logging
+import numpy as np
+
 from django.conf import settings
+from django.db.models import Q
+from django.core.mail import send_mail
+from django.utils import timezone
+
+from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework import status, generics
-from django.db.models import Q
-import pickle
-import os
-from .models import Product
-from .serializers import ProductSerializer
-from accounts.permissions import IsSeller
 from rest_framework.exceptions import PermissionDenied
-from .models import Category, Brand
-from .serializers import CategorySerializer, BrandSerializer
-from .models import Cart, CartItem, Order, OrderItem
-from .serializers import CartSerializer, OrderSerializer
-from django.db import transaction
-from accounts.permissions import IsAdmin
-from sentence_transformers import SentenceTransformer
-import numpy as np
 
-import requests as http_requests
-from decouple import config as env_config
+from .models import Product, Category, Brand, Cart, CartItem, Order, OrderItem, ProductView, SearchLog
+from .serializers import ProductSerializer, CategorySerializer, BrandSerializer, FeedbackSerializer
+from accounts.permissions import IsSeller
+from accounts.models import Seller
+from .image_search import extract_features, compare_features
+from .payment import initiate_payment as khalti_initiate, verify_payment as khalti_verify
+from sentence_transformers import SentenceTransformer, util as st_util
 
-
-
-
+logger = logging.getLogger(__name__)
 
 SIMILARITY_DATA = None
+IMAGE_FEATURES = None
+
 
 def _load_similarity_data():
     global SIMILARITY_DATA
     if SIMILARITY_DATA is None:
-        pkl_path = os.path.join(
-            settings.BASE_DIR, 'recommender', 'similarity_matrix.pkl'
-        )
-        with open(pkl_path, 'rb') as f:
-            SIMILARITY_DATA = pickle.load(f)
+        cache_dir = os.path.join(settings.BASE_DIR, 'recommender', 'similarity_cache')
+        matrix = np.load(os.path.join(cache_dir, 'similarity_matrix.npy'))
+        product_ids = np.load(
+            os.path.join(cache_dir, 'product_ids.npy'), allow_pickle=True
+        ).tolist()
+        with open(os.path.join(cache_dir, 'weights.json')) as f:
+            weights = json.load(f)
+        SIMILARITY_DATA = {
+            'matrix': matrix,
+            'product_ids': product_ids,
+            'weights': weights,
+        }
     return SIMILARITY_DATA
+
+
+def _load_image_features():
+    global IMAGE_FEATURES
+    if IMAGE_FEATURES is None:
+        path = os.path.join(settings.BASE_DIR, 'recommender', 'visual_search', 'image_features.pkl')
+        with open(path, 'rb') as f:
+            IMAGE_FEATURES = pickle.load(f)
+
+        extra_path = os.path.join(settings.BASE_DIR, 'recommender', 'visual_search', 'image_features_extra_by_id.pkl')
+        if os.path.exists(extra_path):
+            with open(extra_path, 'rb') as f:
+                extra = pickle.load(f)
+            IMAGE_FEATURES.update(extra)
+    return IMAGE_FEATURES
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_recommendations(request, product_id):
     data = _load_similarity_data()
-    matrix = data['feature_similarity_matrix']
+    matrix = data['matrix']
     product_ids = data['product_ids']
-    brands = data['brands']
 
     try:
-        idx = product_ids.index(product_id)
+        viewed_product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        idx = product_ids.index(viewed_product.product_id)
     except ValueError:
         return Response(
             {'error': 'Product not found in similarity matrix'},
             status=status.HTTP_404_NOT_FOUND
         )
 
-    viewed_brand = brands[idx]
     scores = matrix[idx]
+    order = np.argsort(-scores)
+    order = [i for i in order if i != idx]
 
-    candidates = [
-        (i, scores[i]) for i in range(len(product_ids)) if i != idx
-    ]
+    ranked_business_ids = [product_ids[i] for i in order]
 
-    same_brand = [(i, s) for i, s in candidates if brands[i] == viewed_brand]
-    cross_brand = [(i, s) for i, s in candidates if brands[i] != viewed_brand]
-
-    same_brand.sort(key=lambda x: x[1], reverse=True)
-    cross_brand.sort(key=lambda x: x[1], reverse=True)
-
-    top_candidates = same_brand[:3] + cross_brand[:2]
-
-    if len(top_candidates) < 5:
-        remaining = 5 - len(top_candidates)
-        leftover_pool = same_brand[3:] if len(same_brand) > 3 else cross_brand[2:]
-        top_candidates += leftover_pool[:remaining]
-
-    ranked_product_ids = [product_ids[i] for i, _ in top_candidates]
-
-    products_qs = Product.objects.filter(
-        id__in=ranked_product_ids, stock_quantity__gt=0
-    )
-    products_by_id = {p.id: p for p in products_qs}
+    candidates_qs = Product.objects.filter(
+        product_id__in=ranked_business_ids[:30], stock_quantity__gt=0
+    ).exclude(id=viewed_product.id)
+    products_by_business_id = {p.product_id: p for p in candidates_qs}
 
     ordered_results = []
-    for pid in ranked_product_ids:
-        if pid in products_by_id:
-            ordered_results.append(products_by_id[pid])
+    for bid in ranked_business_ids:
+        if bid in products_by_business_id:
+            ordered_results.append(products_by_business_id[bid])
         if len(ordered_results) >= 5:
             break
 
@@ -162,12 +174,79 @@ def search_products(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def personalized_homepage(request):
+    user = request.user
+    weighted_ids = {}
+
+    def add_weight(pid, w):
+        weighted_ids[pid] = weighted_ids.get(pid, 0) + w
+
+    for pid in Product.objects.filter(orderitem__order__user=user).values_list('product_id', flat=True).distinct():
+        add_weight(pid, 3)
+
+    for pid in Product.objects.filter(cartitem__cart__user=user).values_list('product_id', flat=True).distinct():
+        add_weight(pid, 2)
+
+    recent_views = ProductView.objects.filter(user=user).order_by('-viewed_at')[:50]
+    for v in recent_views:
+        add_weight(v.product.product_id, 1)
+
+    recent_searches = SearchLog.objects.filter(user=user).order_by('-created_at')[:20]
+    for s in recent_searches:
+        for pid in s.matched_product_ids[:5]:
+            add_weight(pid, 0.5)
+
+    if weighted_ids:
+        data = _load_similarity_data()
+        matrix = data['matrix']
+        product_ids = data['product_ids']
+
+        indices = []
+        weights = []
+        for pid, w in weighted_ids.items():
+            if pid in product_ids:
+                indices.append(product_ids.index(pid))
+                weights.append(w)
+
+        if indices:
+            weights = np.array(weights).reshape(-1, 1)
+            combined_scores = (matrix[indices] * weights).sum(axis=0) / weights.sum()
+
+            excluded = set(weighted_ids.keys())
+            ranked_indices = np.argsort(-combined_scores)
+            ranked_business_ids = [
+                product_ids[i] for i in ranked_indices
+                if product_ids[i] not in excluded
+            ]
+
+            candidates_qs = Product.objects.filter(
+                product_id__in=ranked_business_ids, stock_quantity__gt=0
+            ).select_related('category')
+            products_by_business_id = {p.product_id: p for p in candidates_qs}
+
+            category_buckets = {}
+            CATEGORY_LIMIT = 10
+            TOTAL_LIMIT = 40
+
+            for bid in ranked_business_ids:
+                p = products_by_business_id.get(bid)
+                if not p:
+                    continue
+                cat = p.category.name
+                bucket = category_buckets.setdefault(cat, [])
+                if len(bucket) < CATEGORY_LIMIT:
+                    bucket.append(p)
+                if sum(len(b) for b in category_buckets.values()) >= TOTAL_LIMIT:
+                    break
+
+            products = [p for bucket in category_buckets.values() for p in bucket][:40]
+            serializer = ProductSerializer(products, many=True)
+            return Response(serializer.data)
+
     try:
-        pref = request.user.preference
+        pref = user.preference
     except Exception:
         return featured_products(request._request)
 
-    # priority_spec anusaar sort garne column choose garne
     priority_sort_map = {
         'gaming': '-ram_gb',
         'performance': '-ram_gb',
@@ -183,7 +262,6 @@ def personalized_homepage(request):
         base_qs = base_qs.filter(price_npr__lte=pref.max_price)
 
     if pref.category == 'Both' or not pref.category:
-        # dubai category bata equal number linne, mix guarantee garna
         phones = base_qs.filter(category__name='Smartphone').order_by(sort_field)[:10]
         laptops = base_qs.filter(category__name='Laptop').order_by(sort_field)[:10]
         products = list(phones) + list(laptops)
@@ -201,6 +279,27 @@ def my_products(request):
     products = Product.objects.filter(seller=seller)
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def seller_storefront(request, seller_id):
+    try:
+        seller = Seller.objects.get(id=seller_id)
+    except Seller.DoesNotExist:
+        return Response({'error': 'Seller not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    products = Product.objects.filter(seller=seller, stock_quantity__gt=0)
+    serializer = ProductSerializer(products, many=True)
+
+    return Response({
+        'seller': {
+            'id': seller.id,
+            'business_name': seller.business_name,
+            'verification_status': seller.verification_status,
+        },
+        'products': serializer.data,
+    })
 
 
 @api_view(['GET'])
@@ -283,18 +382,73 @@ def product_detail(request, product_id):
     return Response(serializer.data)
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def visual_search(request):
+    uploaded_file = request.FILES.get('image')
+    if not uploaded_file:
+        return Response({'error': 'No image uploaded'}, status=status.HTTP_400_BAD_REQUEST)
 
-def _get_or_create_cart(user):
-    cart, _ = Cart.objects.get_or_create(user=user)
-    return cart
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp:
+        for chunk in uploaded_file.chunks():
+            tmp.write(chunk)
+        tmp_path = tmp.name
 
+    query_vec = extract_features(tmp_path)
+    os.remove(tmp_path)
+
+    if query_vec is None:
+        return Response({'error': 'Could not process image'}, status=status.HTTP_400_BAD_REQUEST)
+
+    features = _load_image_features()
+    scores = [(pid, compare_features(query_vec, vec)) for pid, vec in features.items()]
+    scores.sort(key=lambda x: x[1], reverse=True)
+
+    top_ids = [pid for pid, s in scores[:20] if s > 0.5]
+
+    if not top_ids:
+        return Response({'message': 'No close matches found. Try a clearer photo.', 'results': []})
+
+    products = Product.objects.filter(id__in=top_ids, stock_quantity__gt=0)
+    products_by_id = {p.id: p for p in products}
+    ordered = [products_by_id[pid] for pid in top_ids if pid in products_by_id]
+
+    serializer = ProductSerializer(ordered, many=True)
+
+    if request.user.is_authenticated:
+        SearchLog.objects.create(
+            user=request.user,
+            search_type='image',
+            matched_product_ids=[p.product_id for p in ordered[:10]],
+        )
+
+    return Response({'results': serializer.data})
+
+
+# ---------- CART ----------
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def view_cart(request):
-    cart = _get_or_create_cart(request.user)
-    serializer = CartSerializer(cart)
-    return Response(serializer.data)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
+    items = cart.items.select_related('product')
+
+    result = []
+    total = 0
+    for item in items:
+        subtotal = item.product.price_npr * item.quantity
+        total += subtotal
+        result.append({
+            'item_id': item.id,
+            'product_id': item.product.id,
+            'product_name': item.product.product_name,
+            'price_npr': item.product.price_npr,
+            'quantity': item.quantity,
+            'subtotal': subtotal,
+            'image': item.product.image.url if item.product.image else None,
+        })
+
+    return Response({'items': result, 'total': total})
 
 
 @api_view(['POST'])
@@ -303,79 +457,114 @@ def add_to_cart(request):
     product_id = request.data.get('product_id')
     quantity = int(request.data.get('quantity', 1))
 
-    try:
-        product = Product.objects.get(id=product_id, stock_quantity__gt=0)
-    except Product.DoesNotExist:
-        return Response({'error': 'Product not found or out of stock'}, status=status.HTTP_404_NOT_FOUND)
+    if not product_id:
+        return Response({'error': 'product_id is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    cart = _get_or_create_cart(request.user)
+    try:
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if product.stock_quantity < quantity:
+        return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
+
+    cart, _ = Cart.objects.get_or_create(user=request.user)
     item, created = CartItem.objects.get_or_create(cart=cart, product=product, defaults={'quantity': quantity})
+
     if not created:
         item.quantity += quantity
         item.save()
 
-    serializer = CartSerializer(cart)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response({'message': 'Added to cart', 'item_id': item.id, 'quantity': item.quantity})
 
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def remove_from_cart(request, item_id):
-    cart = _get_or_create_cart(request.user)
     try:
-        item = CartItem.objects.get(id=item_id, cart=cart)
+        item = CartItem.objects.get(id=item_id, cart__user=request.user)
     except CartItem.DoesNotExist:
         return Response({'error': 'Cart item not found'}, status=status.HTTP_404_NOT_FOUND)
 
     item.delete()
-    serializer = CartSerializer(cart)
-    return Response(serializer.data)
+    return Response({'message': 'Item removed from cart'})
 
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_cart_item(request, item_id):
-    cart = _get_or_create_cart(request.user)
     try:
-        item = CartItem.objects.get(id=item_id, cart=cart)
+        item = CartItem.objects.get(id=item_id, cart__user=request.user)
     except CartItem.DoesNotExist:
         return Response({'error': 'Cart item not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    quantity = int(request.data.get('quantity', item.quantity))
+    quantity = request.data.get('quantity')
+    if quantity is None:
+        return Response({'error': 'quantity is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    quantity = int(quantity)
     if quantity <= 0:
         item.delete()
-    else:
-        item.quantity = quantity
-        item.save()
+        return Response({'message': 'Item removed from cart'})
 
-    serializer = CartSerializer(cart)
-    return Response(serializer.data)
+    if item.product.stock_quantity < quantity:
+        return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
 
+    item.quantity = quantity
+    item.save()
+    return Response({'message': 'Cart item updated', 'quantity': item.quantity})
+
+
+# ---------- ORDERS ----------
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_orders(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data)
+    orders = Order.objects.filter(user=request.user).order_by('-created_at').prefetch_related('items')
+
+    result = []
+    for order in orders:
+        result.append({
+            'id': order.id,
+            'status': order.status,
+            'total_amount': order.total_amount,
+            'created_at': order.created_at,
+            'items': [
+                {
+                    'product_name': i.product_name_snapshot,
+                    'price_at_purchase': i.price_at_purchase,
+                    'quantity': i.quantity,
+                }
+                for i in order.items.all()
+            ],
+        })
+
+    return Response(result)
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@transaction.atomic
 def checkout(request):
-    """Creates an Order + OrderItems from the current cart, then empties the cart.
-    Payment integration will hook in here later (Phase 3)."""
-    cart = _get_or_create_cart(request.user)
-    items = list(cart.items.select_related('product').all())
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except Cart.DoesNotExist:
+        return Response({'error': 'Cart is empty'}, status=status.HTTP_400_BAD_REQUEST)
 
-    if not items:
-        return Response({'error': 'Your cart is empty'}, status=status.HTTP_400_BAD_REQUEST)
+    items = cart.items.select_related('product')
+    if not items.exists():
+        return Response({'error': 'Cart is empty'}, status=status.HTTP_400_BAD_REQUEST)
 
     total = sum(item.product.price_npr * item.quantity for item in items)
 
     order = Order.objects.create(user=request.user, total_amount=total, status='pending')
+
     for item in items:
+        if item.product.stock_quantity < item.quantity:
+            order.delete()
+            return Response(
+                {'error': f'Not enough stock for {item.product.product_name}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         OrderItem.objects.create(
             order=order,
             product=item.product,
@@ -383,220 +572,146 @@ def checkout(request):
             price_at_purchase=item.product.price_npr,
             quantity=item.quantity,
         )
+        item.product.stock_quantity -= item.quantity
+        item.product.save()
 
-    cart.items.all().delete()
+    items.delete()
 
-    serializer = OrderSerializer(order)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response({'order_id': order.id, 'total_amount': total, 'status': order.status})
+
 
 @api_view(['GET'])
-@permission_classes([IsAdmin])
+@permission_classes([IsAuthenticated])
 def all_orders(request):
-    orders = Order.objects.select_related('user').order_by('-created_at')
-    serializer = OrderSerializer(orders, many=True)
-    data = serializer.data
-    # attach customer info to each order for the admin view
-    orders_by_id = {o.id: o for o in orders}
-    for item in data:
-        order_obj = orders_by_id[item['id']]
-        item['customer_username'] = order_obj.user.username
-        item['customer_name'] = order_obj.user.first_name
-    return Response(data)
+    if not request.user.is_staff:
+        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+
+    orders = Order.objects.all().order_by('-created_at').prefetch_related('items')
+
+    result = []
+    for order in orders:
+        result.append({
+            'id': order.id,
+            'user': order.user.username,
+            'status': order.status,
+            'total_amount': order.total_amount,
+            'created_at': order.created_at,
+        })
+
+    return Response(result)
 
 
-
-SEARCH_MODEL = None
-SEARCH_EMBEDDINGS_DATA = None
-
-
-def _load_search_model():
-    global SEARCH_MODEL
-    if SEARCH_MODEL is None:
-        SEARCH_MODEL = SentenceTransformer('all-MiniLM-L6-v2')
-    return SEARCH_MODEL
+SEMANTIC_MODEL = None
+PRODUCT_EMBEDDINGS = None
 
 
-def _load_search_embeddings():
-    global SEARCH_EMBEDDINGS_DATA
-    if SEARCH_EMBEDDINGS_DATA is None:
-        pkl_path = os.path.join(
-            settings.BASE_DIR, 'recommender', 'search_embeddings.pkl'
-        )
-        with open(pkl_path, 'rb') as f:
-            SEARCH_EMBEDDINGS_DATA = pickle.load(f)
-    return SEARCH_EMBEDDINGS_DATA
+def _load_semantic_model():
+    global SEMANTIC_MODEL
+    if SEMANTIC_MODEL is None:
+        SEMANTIC_MODEL = SentenceTransformer('all-MiniLM-L6-v2')
+    return SEMANTIC_MODEL
+
+
+def _load_product_embeddings():
+    global PRODUCT_EMBEDDINGS
+    if PRODUCT_EMBEDDINGS is None:
+        path = os.path.join(settings.BASE_DIR, 'recommender', 'product_embeddings.pkl')
+        with open(path, 'rb') as f:
+            PRODUCT_EMBEDDINGS = pickle.load(f)
+    return PRODUCT_EMBEDDINGS
 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def semantic_search(request):
     query = request.GET.get('q', '').strip()
-    category = request.GET.get('category', '').strip()
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+
     if not query:
         return Response({'count': 0, 'results': []})
 
-    model = _load_search_model()
-    data = _load_search_embeddings()
+    model = _load_semantic_model()
+    embeddings = _load_product_embeddings()
 
-    query_embedding = model.encode([query], convert_to_numpy=True)
+    query_vec = model.encode(query)
 
-    # cosine similarity between the query and every product embedding
-    product_embeddings = data['embeddings']
-    norms = np.linalg.norm(product_embeddings, axis=1) * np.linalg.norm(query_embedding)
-    similarities = (product_embeddings @ query_embedding.T).flatten() / (norms + 1e-10)
+    product_ids = list(embeddings.keys())
+    product_vecs = np.array([embeddings[pid] for pid in product_ids])
 
-    # take the top 30 most similar products above a relevance threshold
-    # Get the top 10 most similar products
-    # Get the top 10 most similar products
-    top_indices = np.argsort(similarities)[::-1][:10]
+    scores = st_util.cos_sim(query_vec, product_vecs)[0].numpy()
+    order = np.argsort(-scores)[:30]
 
-    print("\n===== Semantic Search Debug =====")
-    print("Query:", query)
+    top_ids = [product_ids[i] for i in order if scores[i] > 0.4]
 
-    for i in top_indices:
-        print(
-            f"Product ID: {data['product_ids'][i]}, "
-            f"Similarity: {similarities[i]:.4f}"
-        )
+    products_qs = Product.objects.filter(id__in=top_ids, stock_quantity__gt=0)
+    if min_price:
+        products_qs = products_qs.filter(price_npr__gte=min_price)
+    if max_price:
+        products_qs = products_qs.filter(price_npr__lte=max_price)
 
-    # Keep products whose similarity is above the threshold
-    relevant_indices = [i for i in top_indices if similarities[i] > 0.10]
-
-
-    matched_product_ids = [data['product_ids'][i] for i in relevant_indices]
-
-    products_qs = Product.objects.filter(id__in=matched_product_ids, stock_quantity__gt=0)
-    if category:
-        products_qs = products_qs.filter(category__name=category)
     products_by_id = {p.id: p for p in products_qs}
+    ordered = [products_by_id[pid] for pid in top_ids if pid in products_by_id]
 
-    ordered_results = [products_by_id[pid] for pid in matched_product_ids if pid in products_by_id]
+    serializer = ProductSerializer(ordered, many=True)
 
-    serializer = ProductSerializer(ordered_results, many=True)
-    return Response({'count': len(ordered_results), 'results': serializer.data})
+    if request.user.is_authenticated:
+        SearchLog.objects.create(
+            user=request.user,
+            search_type='text',
+            query_text=query[:255],
+            matched_product_ids=[p.product_id for p in ordered[:10]],
+        )
 
-
-
-KHALTI_BASE_URL = "https://dev.khalti.com/api/v2"
+    return Response({'count': len(ordered), 'results': serializer.data})
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@transaction.atomic
-def khalti_initiate(request):
-    """
-    Step 1 of Khalti payment: creates a pending Order from the cart (same as
-    checkout()), then asks Khalti for a payment_url. Frontend redirects the
-    user to that payment_url to complete payment on Khalti's site.
-    """
-    cart = _get_or_create_cart(request.user)
-    items = list(cart.items.select_related('product').all())
-
-    if not items:
-        return Response({'error': 'Your cart is empty'}, status=status.HTTP_400_BAD_REQUEST)
-
-    total = sum(item.product.price_npr * item.quantity for item in items)
-
-    order = Order.objects.create(user=request.user, total_amount=total, status='pending')
-    for item in items:
-        OrderItem.objects.create(
-            order=order,
-            product=item.product,
-            product_name_snapshot=item.product.product_name,
-            price_at_purchase=item.product.price_npr,
-            quantity=item.quantity,
-        )
-    cart.items.all().delete()
-
-    return_url = request.data.get('return_url', 'http://localhost:5173/payment-callback')
-    website_url = request.data.get('website_url', 'http://localhost:5173')
-
-    payload = {
-        "return_url": return_url,
-        "website_url": website_url,
-        "amount": total * 100,  # Khalti expects paisa, not rupees
-        "purchase_order_id": str(order.id),
-        "purchase_order_name": f"Nexora Order #{order.id}",
-        "customer_info": {
-            "name": request.user.first_name or request.user.username,
-            "email": request.user.email or "test@example.com",
-            "phone": "9800000000",
-        },
-    }
-
-    headers = {"Authorization": f"Key {env_config('KHALTI_SECRET_KEY')}"}
-
+def log_product_view(request):
+    product_id = request.data.get('product_id')
     try:
-        khalti_response = http_requests.post(
-            f"{KHALTI_BASE_URL}/epayment/initiate/",
-            json=payload,
-            headers=headers,
-            timeout=15,
-        )
-        khalti_data = khalti_response.json()
-    except http_requests.RequestException:
-        order.status = 'failed'
-        order.save()
-        return Response({'error': 'Could not reach Khalti payment service.'}, status=status.HTTP_502_BAD_GATEWAY)
-
-    if khalti_response.status_code != 200:
-        order.status = 'failed'
-        order.save()
-        return Response({'error': 'Khalti rejected the payment request.', 'details': khalti_data}, status=status.HTTP_400_BAD_REQUEST)
-
-    return Response({
-        'order_id': order.id,
-        'payment_url': khalti_data.get('payment_url'),
-        'pidx': khalti_data.get('pidx'),
-    })
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+    ProductView.objects.create(user=request.user, product=product)
+    return Response({'status': 'logged'})
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def khalti_verify(request):
-    """
-    Step 2 of Khalti payment: called by the frontend after the user returns
-    from Khalti's payment page. Confirms with Khalti that payment actually
-    succeeded, then marks the matching Order as paid.
-    """
-    pidx = request.data.get('pidx')
-    order_id = request.data.get('order_id')
+@permission_classes([AllowAny])
+def submit_feedback(request):
+    serializer = FeedbackSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        
+        name = serializer.validated_data.get('name', 'Anonymous')
+        email = serializer.validated_data.get('email', 'Not provided')
+        message = serializer.validated_data.get('message', '')
+        submitted_at = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    if not pidx or not order_id:
-        return Response({'error': 'pidx and order_id are required'}, status=status.HTTP_400_BAD_REQUEST)
-
-    headers = {"Authorization": f"Key {env_config('KHALTI_SECRET_KEY')}"}
-
-    try:
-        khalti_response = http_requests.post(
-            f"{KHALTI_BASE_URL}/epayment/lookup/",
-            json={"pidx": pidx},
-            headers=headers,
-            timeout=15,
+        subject = "New Customer Feedback Received"
+        body = (
+            f"Customer Name: {name}\n"
+            f"Customer Email: {email}\n\n"
+            f"Feedback:\n{message}\n\n"
+            f"Submitted At: {submitted_at}"
         )
-        khalti_data = khalti_response.json()
-    except http_requests.RequestException:
-        return Response({'error': 'Could not reach Khalti payment service.'}, status=status.HTTP_502_BAD_GATEWAY)
 
-    try:
-        order = Order.objects.get(id=order_id, user=request.user)
-    except Order.DoesNotExist:
-        return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            send_mail(
+                subject=subject,
+                message=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.SUPPORT_EMAIL],
+                fail_silently=False,
+            )
+        except Exception as e:
+            logger.error(f"Failed to send feedback email: {str(e)}")
 
-    khalti_status = khalti_data.get('status')
+        return Response(
+            {"message": "Thank you! Your feedback has been submitted successfully."},
+            status=status.HTTP_201_CREATED
+        )
 
-    if khalti_status == 'Completed':
-        order.status = 'paid'
-        order.save()
-        return Response({'status': 'paid', 'order_id': order.id})
-    elif khalti_status in ('Expired', 'User canceled'):
-        order.status = 'cancelled'
-        order.save()
-        return Response({'status': 'cancelled', 'order_id': order.id})
-    else:
-        order.status = 'failed'
-
-        order.save()
-        return Response({'status': 'failed', 'order_id': order.id, 'khalti_status': khalti_status})
-
-    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

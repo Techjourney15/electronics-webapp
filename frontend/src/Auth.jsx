@@ -1,120 +1,67 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState } from 'react'
+import axios from 'axios'
+import deviceImage from "./assets/Mobile.webp"; // background photo ko lagi (hero image, unchanged)
+import smartphoneImage from "./assets/Smartphone.png"; // smartphone category tile photo
+import laptopImage from "./assets/Laptop.png"; // laptop category tile photo
 import { useNavigate } from "react-router-dom";
-import deviceImage from "./assets/Mobile.webp";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = 'http://127.0.0.1:8000/api'
 
-function LabeledField({
-  id,
-  label,
-  placeholder,
-  type = "text",
-  value,
-  onChange,
-  autoComplete,
-}) {
+// input field component — email, password, name sabai yehi use garcha
+function FloatingField({ id, label, type = 'text', value, onChange, autoComplete }) {
   return (
-    <div className="space-y-1.5">
-      <label
-        htmlFor={id}
-        className="block text-xs font-medium text-slate-300"
-      >
-        {label}
-      </label>
-
+    <label className="block">
       <input
         id={id}
         type={type}
         value={value}
         onChange={onChange}
         autoComplete={autoComplete}
-        placeholder={placeholder}
-        className="
-        w-full
-        rounded-xl
-        border
-        border-slate-700
-        bg-[#1A1D2E]
-        px-3.5
-        py-2.5
-        text-sm
-        text-white
-        placeholder:text-slate-500
-        outline-none
-        transition
-        focus:border-blue-500
-        focus:ring-2
-        focus:ring-blue-500/20
-        "
+        placeholder={label}
+        className="w-full rounded-2xl border border-slate-700 bg-[#1A1D2E] px-4 py-3.5 text-sm text-white outline-none transition duration-200 placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
       />
+    </label> 
+  )
+}
+
+// Popular category tile — photo (or icon fallback) + label + listing count.
+// Purely informational: no click-through, since search results are only
+// meant to be reached by logged-in customers, not anonymous landing-page visitors.
+function CategoryTile({ image, icon, label, count }) {
+  return (
+    <div className="group relative flex h-40 flex-col justify-end overflow-hidden rounded-2xl border border-slate-700/70 bg-[#111827]/60 p-5 text-left transition duration-300 hover:-translate-y-1 hover:border-blue-500/40">
+      {image ? (
+        <>
+          <img
+            src={image}
+            alt={label}
+            className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-300 group-hover:opacity-85 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
+        </>
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/25 via-[#16213F] to-amber-500/15" />
+      )}
+
+      <span className="relative flex flex-col gap-1.5">
+        {icon && (
+          <span className="mb-1 flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white backdrop-blur">
+            {icon}
+          </span>
+        )}
+        <span className="text-sm font-semibold text-white">{label}</span>
+        {count && (
+          <span className="text-xs font-medium text-blue-300">{count} listed</span>
+        )}
+      </span>
     </div>
   );
 }
 
-function Logo() {
-  return (
-    <svg
-      viewBox="0 0 80 80"
-      className="h-full w-full"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <defs>
-        <linearGradient id="gold">
-          <stop offset="0%" stopColor="#FFE7AE" />
-          <stop offset="50%" stopColor="#f4bb60" />
-          <stop offset="100%" stopColor="#B88942" />
-        </linearGradient>
-      </defs>
-
-      <path
-        d="M40 12L56 22L56 38L40 48L24 38L24 22L40 12Z"
-        fill="url(#gold)"
-        opacity=".25"
-      />
-
-      <path
-        d="M24 22L40 12L56 22L40 32L24 22Z"
-        fill="url(#gold)"
-      />
-
-      <path
-        d="M40 32L56 22V38L40 48V32Z"
-        fill="url(#gold)"
-        opacity=".9"
-      />
-
-      <path
-        d="M40 32L24 22V38L40 48V32Z"
-        fill="url(#gold)"
-        opacity=".7"
-      />
-
-      <path
-        d="M18 47L31 39L40 44L27 52L18 47Z"
-        fill="url(#gold)"
-      />
-
-      <path
-        d="M62 47L49 39L40 44L53 52L62 47Z"
-        fill="url(#gold)"
-      />
-
-      <path
-        d="M40 48L27 52L40 60L53 52L40 48Z"
-        fill="url(#gold)"
-      />
-    </svg>
-  );
-}
-
+// left side branding — GadgetHub title, tagline, spec badges, popular categories
 function LeftSection() {
-  const brandName = "NEXORA";
-
   return (
     <section className="hidden lg:flex flex-col justify-center px-16">
-      {/* Optimized Keyframe Animation */}
       <style>{`
         @keyframes ultraSmoothReveal {
           0% {
@@ -131,22 +78,22 @@ function LeftSection() {
             filter: blur(0px);
           }
         }
+        @keyframes smoothShimmer {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
       `}</style>
 
-      {/* NEXORA Staggered Letter Reveal Title */}
+      {/* GadgetHub letter-by-letter reveal title */}
       <h1 className="flex text-[90px] leading-none font-black tracking-tight select-none">
-        {brandName.split("").map((char, index) => (
+        {"GADGETHUB".split("").map((char, index) => (
           <span
             key={index}
             style={{
-              /* 
-                - 0.8s duration for a silky finish
-                - cubic-bezier(0.16, 1, 0.3, 1) for rapid acceleration + soft deceleration
-                - index * 0.07s for a tight wave interval
-              */
               animation: `ultraSmoothReveal 3s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.07}s forwards`,
               opacity: 0,
-              willChange: "transform, opacity, filter", // Force GPU layer creation
+              willChange: "transform, opacity, filter",
             }}
             className="
               inline-block
@@ -166,155 +113,37 @@ function LeftSection() {
         ))}
       </h1>
 
-      {/* ... rest of your LeftSection code remains unchanged ... */}
       <p className="mt-4 max-w-md text-base leading-7 text-slate-400">
-        Verified smartphones and laptops, checked spec by spec — buy and sell with
-        a marketplace built for tech.
+        Trusted tech starts here. Explore verified smartphones and laptops with accurate specs and trusted sellers.
       </p>
 
-      {/* Specification Badges */}
+      {/* Spec badges */}
       <div className="mt-10 flex flex-wrap gap-3">
-        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">
-          128GB
-        </span>
-        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">
-          5G
-        </span>
-        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">
-          A17 Pro
-        </span>
-        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">
-          16GB RAM
-        </span>
-        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">
-          RTX 4060
-        </span>
-        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">
-          512GB SSD
-        </span>
-        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">
-          Snapdragon 8 Gen 3
-        </span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">128GB</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">5G</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">A17 Pro</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">16GB RAM</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">RTX 4060</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">512GB SSD</span>
+        <span className="rounded-full border border-slate-700 bg-[#111827]/60 px-4 py-2 text-xs">Snapdragon 8 Gen 3</span>
       </div>
 
-      {/* Metrics */}
-      <div className="mt-10 grid max-w-md grid-cols-3 gap-6">
-        <div>
-          <h2 className="text-3xl font-bold">12,400+</h2>
-          <p className="mt-1 text-xs uppercase tracking-wider text-slate-500">
-            Devices Listed
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-3xl font-bold">98.2%</h2>
-          <p className="mt-1 text-xs uppercase tracking-wider text-slate-500">
-            On-Time Delivery
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-3xl font-bold">4.8/5</h2>
-          <p className="mt-1 text-xs uppercase tracking-wider text-slate-500">
-            Buyer Rating
-          </p>
-        </div>
-      </div>
-
-      {/* Featured Device Card */}
-      <div
-        className="
-        relative
-        mt-8
-        w-[340px]
-        overflow-hidden
-        rounded-2xl
-        border
-        border-slate-700/80
-        bg-gradient-to-br
-        from-[#1D3363]
-        via-[#16213F]
-        to-[#111827]
-        shadow-2xl
-        "
-      >
-        <img
-          src={deviceImage}
-          alt="Samsung Galaxy S24 Ultra"
-          className="
-            h-[190px]
-            w-full
-            object-cover
-            opacity-80
-          "
-        />
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-        <button
-          className="
-          absolute
-          left-4
-          top-1/2
-          -translate-y-1/2
-          h-10
-          w-10
-          rounded-full
-          bg-black/40
-          backdrop-blur
-          text-white
-          "
-        >
-          ❮
-        </button>
-
-        <button
-          className="
-          absolute
-          right-4
-          top-1/2
-          -translate-y-1/2
-          h-10
-          w-10
-          rounded-full
-          bg-black/40
-          backdrop-blur
-          text-white
-          "
-        >
-          ❯
-        </button>
-
-        <div className="absolute bottom-0 w-full p-6">
-          <div
-            className="
-            inline-flex
-            items-center
-            rounded-full
-            bg-amber-500/20
-            px-3
-            py-1
-            text-xs
-            text-amber-300
-            "
-          >
-            🔥 Just launched
-          </div>
-
-          <h3 className="mt-4 text-3xl font-bold">
-            Samsung Galaxy S24 Ultra
-          </h3>
-
-          <p className="mt-2 text-lg text-white/90">
-            Rs 1,54,000
-          </p>
-
-          <div className="mt-5 flex justify-end gap-2">
-            <span className="h-2 w-2 rounded-full bg-white" />
-            <span className="h-2 w-2 rounded-full bg-white/40" />
-            <span className="h-2 w-2 rounded-full bg-white/40" />
-            <span className="h-2 w-2 rounded-full bg-white/40" />
-          </div>
+      {/* Popular categories — replaces the promo slider (now dashboard-only) */}
+      <div className="mt-10 max-w-xl">
+        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+          Popular categories
+        </p>
+        <div className="grid grid-cols-2 gap-4">
+          <CategoryTile
+            label="Smartphones"
+            image={smartphoneImage}
+            count="6,000+"
+          />
+          <CategoryTile
+            label="Laptops"
+            image={laptopImage}
+            count="4,000+"
+          />
         </div>
       </div>
     </section>
@@ -323,427 +152,263 @@ function LeftSection() {
 
 function Auth() {
   const navigate = useNavigate();
-
-  const [mode, setMode] = useState("signup");
-  const [role, setRole] = useState("customer");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
-
+  const [mode, setMode] = useState('signup') // signup ki signin, default signup
+  const [role, setRole] = useState('customer') // customer ki seller
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+    name: '',
+    email: '',
+    password: '',
+  })
 
-  const isSignIn = mode === "signin";
+  const isSignIn = mode === 'signin'
 
-  const updateField = (field) => (event) => {
-    setForm((current) => ({
-      ...current,
-      [field]: event.target.value,
-    }));
-  };
-
+  // form submit garda backend call garne — login ki register, mode anusaar
   const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    setError("");
-    setIsSubmitting(true);
+    event.preventDefault()
+    setError('')
+    setIsSubmitting(true)
 
     try {
       if (isSignIn) {
+        // login call
         const response = await axios.post(`${API_BASE}/auth/login/`, {
           username: form.email,
           password: form.password,
-        });
+        })
+        localStorage.setItem('access_token', response.data.access)
+        localStorage.setItem('refresh_token', response.data.refresh)
 
-        localStorage.setItem("access_token", response.data.access);
-        localStorage.setItem("refresh_token", response.data.refresh);
-
+        // role check garera kaha redirect garne decide garne
         const who = await axios.get(`${API_BASE}/auth/whoami/`, {
-          headers: {
-            Authorization: `Bearer ${response.data.access}`,
-          },
-        });
+          headers: { Authorization: `Bearer ${response.data.access}` },
+        })
 
-        if (who.data.role === "seller") {
-          navigate(
-            who.data.is_seller_profile_complete
-              ? "/seller-dashboard"
-              : "/seller-onboarding"
-          );
-        } else if (who.data.role === "admin") {
-          navigate("/admin-dashboard");
+        if (who.data.role === 'seller') {
+          navigate(who.data.is_seller_profile_complete ? '/seller-dashboard' : '/seller-onboarding')
+        } else if (who.data.role === 'admin') {
+          navigate('/admin-dashboard')
         } else {
-          const prefCheck = await axios.get(
-            `${API_BASE}/auth/has-preferences/`,
-            {
-              headers: {
-                Authorization: `Bearer ${response.data.access}`,
-              },
-            }
-          );
-
-          navigate(
-            prefCheck.data.has_preferences
-              ? "/homepage"
-              : "/preferences"
-          );
+          const prefCheck = await axios.get(`${API_BASE}/auth/has-preferences/`, {
+            headers: { Authorization: `Bearer ${response.data.access}` },
+          })
+          navigate(prefCheck.data.has_preferences ? '/homepage' : '/preferences')
         }
       } else {
+        // register call
         await axios.post(`${API_BASE}/auth/register/`, {
           username: form.email,
           email: form.email,
           password: form.password,
-          role,
+          role: role,
           name: form.name,
-        });
-
-        setMode("signin");
-
-        setError(
-          `Welcome, ${
-            form.name || "there"
-          }! Your account is ready. Please sign in.`
-        );
+        })
+        setMode('signin')
+        setError(`Welcome, ${form.name || 'there'}! Your account is ready. Please sign in.`)
       }
     } catch (err) {
-      const data = err.response?.data;
-
-      const message =
-        data?.detail ||
-        (data && Object.values(data)[0]) ||
-        "Something went wrong. Please try again.";
-
-      setError(Array.isArray(message) ? message[0] : String(message));
+      // backend bata aayeko error message dekhaune
+      const data = err.response?.data
+      const message = data?.detail || (data && Object.values(data)[0]) || 'Something went wrong. Please try again.'
+      setError(Array.isArray(message) ? message[0] : String(message))
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
-  const title = isSignIn
-    ? "Welcome Back"
-    : "Create your account";
+  // form ko kunai field update garne generic function
+  const updateField = (field) => (event) => {
+    setForm((current) => ({ ...current, [field]: event.target.value }))
+  }
 
+  const title = isSignIn ? 'Welcome back' : 'Create your account'
   const copy = isSignIn
-    ? "Sign in to continue your Nexora journey."
-    : "Get started buying or selling on Nexora.";
+    ? 'Use your email and password to continue securely.'
+    : 'Create your account to get started with GadgetHub.'
 
-  const isSuccessMessage = error.startsWith("Welcome");
+  const isSuccessMessage = error.startsWith('Welcome')
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#0A0D18] text-white transition-opacity duration-700 ease-in-out animate-fadeIn">
-      {/* Background keyframe definitions */}
-      <style>{`
-        @keyframes smoothFloat {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-7px); }
-        }
-        @keyframes smoothShimmer {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-      `}</style>
+    <main className="relative min-h-screen overflow-hidden text-slate-100">
+      {/* photo maathi dark navy overlay halera theme sanga blend garne */}
+      <div className="absolute inset-0">
+        <img
+          src={deviceImage}
+          alt="Smartphone and laptop showcase"
+          className="h-full w-full object-cover object-[center_24%]"
+        />
+        {/* dark navy gradient overlay — photo lai dark theme sanga match garaune */}
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(10,13,24,0.92)_0%,rgba(17,24,39,0.85)_45%,rgba(30,41,59,0.65)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.18),transparent_35%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(217,119,6,0.15),transparent_40%)]" />
+      </div>
 
-      {/* Deep Dark Background Layer */}
-      <div className="absolute inset-0 bg-[#0A0D18]" />
+      {/* subtle grid pattern, dark theme ma */}
+      <div className="absolute inset-0 opacity-15 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:72px_72px]" />
 
-      {/* Grid Pattern Overlay */}
-      <div
-        className="
-        absolute
-        inset-0
-        opacity-15
-        [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)]
-        [background-size:60px_60px]
-        "
-      />
-
-      {/* Ambient Blue Background Glow */}
-      <div
-        className="
-        absolute
-        top-[-100px]
-        right-[-100px]
-        h-[650px]
-        w-[650px]
-        rounded-full
-        bg-blue-600/30
-        blur-[170px]
-        pointer-events-none
-        "
-      />
-
-      {/* Ambient Gold/Orange Background Glow */}
-      <div
-        className="
-        absolute
-        bottom-[-80px]
-        left-[-120px]
-        h-[500px]
-        w-[500px]
-        rounded-full
-        bg-amber-600/25
-        blur-[160px]
-        pointer-events-none
-        "
-      />
-
-      <div className="relative grid min-h-screen items-center lg:grid-cols-2">
-        {/* Left Side Content */}
+      <div className="relative grid min-h-screen lg:grid-cols-[1.12fr_0.88fr]">
+        {/* left side — animated GadgetHub branding, badges, popular categories */}
         <LeftSection />
 
-        {/* Right Side Auth Form */}
-        <section className="hidden lg:flex flex-col justify-center px-10 xl:px-14">
-          <div
-            className="
-            w-full
-            max-w-sm
-            rounded-3xl
-            border
-            border-slate-700/60
-            bg-[#111827]/85
-            p-6
-            backdrop-blur-2xl
-            shadow-[0_0_60px_rgba(30,58,138,.2)]
-            "
-          >
-            {/* Header / Brand Logo */}
-            <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1A1D2E] shadow-md animate-[smoothFloat_3.5s_ease-in-out_infinite]">
-                <Logo />
+        {/* form card — dark background, photo ko upar */}
+        <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 lg:-translate-x-8 lg:px-8 lg:py-0">
+          <div className="mx-auto w-full max-w-[380px] rounded-[26px] border border-slate-700/60 bg-[#111827]/70 p-3 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 sm:p-4">
+            <div className="rounded-[20px] border border-slate-700/50 bg-[#111827]/85 p-4 backdrop-blur-lg transition-all duration-300 sm:p-5">
+              <div className="flex items-center justify-between gap-3 pb-5">
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-2xl border border-slate-700 bg-[#1A1D2E] p-2 shadow-[0_0_24px_rgba(37,99,235,0.25)]">
+                    <Logo />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">GadgetHub</p>
+                  </div>
+                </div>
+                {/* Sign In / Create Account toggle */}
+                <div className="flex rounded-full border border-slate-700 bg-[#1A1D2E] p-1">
+                  <button
+                    type="button"
+                    onClick={() => { setMode('signup'); setError('') }}
+                    className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                      !isSignIn ? 'bg-blue-600 text-white' : 'text-slate-400'
+                    }`}
+                  >
+                    Create Account
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setMode('signin'); setError('') }}
+                    className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                      isSignIn ? 'bg-blue-600 text-white' : 'text-slate-400'
+                    }`}
+                  >
+                    Sign In
+                  </button>
+                </div>
               </div>
 
-              <div>
-                <h3 className="text-base font-bold">
-                  Nexora
-                </h3>
-
-                <p className="text-xs text-slate-400">
-                  Electronics Marketplace
-                </p>
-              </div>
-            </div>
-
-            {/* Mode Toggle Switch */}
-            <div className="mb-5 flex rounded-full bg-[#1A1D2E] p-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("signup");
-                  setError("");
-                }}
-                className={`flex-1 rounded-full py-2 text-xs font-semibold transition-all duration-300 ${
-                  !isSignIn
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                    : "text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                Create account
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("signin");
-                  setError("");
-                }}
-                className={`flex-1 rounded-full py-2 text-xs font-semibold transition-all duration-300 ${
-                  isSignIn
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                    : "text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                Sign in
-              </button>
-            </div>
-
-            {/* Form Title & Subtitle */}
-            <div className="mb-5">
-              <h2 className="text-2xl font-bold">
-                {title}
-              </h2>
-
-              <p className="mt-1.5 text-sm text-slate-400">
-                {copy}
-              </p>
-            </div>
-
-            {/* Interactive Form */}
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-3.5"
-            >
-              {!isSignIn && (
-                <>
-                  <div className="flex gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => setRole("customer")}
-                      className={`flex-1 rounded-xl border py-2.5 text-xs font-medium transition-all duration-300 ${
-                        role === "customer"
-                          ? "border-blue-500 bg-blue-600/10 text-white"
-                          : "border-slate-700 bg-[#1A1D2E] text-slate-400 hover:border-slate-600"
-                      }`}
-                    >
-                      I'm a customer
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setRole("seller")}
-                      className={`flex-1 rounded-xl border py-2.5 text-xs font-medium transition-all duration-300 ${
-                        role === "seller"
-                          ? "border-blue-500 bg-blue-600/10 text-white"
-                          : "border-slate-700 bg-[#1A1D2E] text-slate-400 hover:border-slate-600"
-                      }`}
-                    >
-                      I'm a seller
-                    </button>
+              <div className="flex min-h-[340px] items-center py-2">
+                <div className="w-full space-y-6 transition-all duration-300 ease-out">
+                  <div className="space-y-3">
+                    <h2 className="text-[1.75rem] font-semibold tracking-[-0.04em] text-white sm:text-[2rem]">
+                      {title}
+                    </h2>
+                    {copy ? <p className="text-sm leading-6 text-slate-400">{copy}</p> : null}
                   </div>
 
-                  <LabeledField
-                    id="name"
-                    label="Full name"
-                    placeholder="Anshu Sharma"
-                    value={form.name}
-                    onChange={updateField("name")}
-                    autoComplete="name"
-                  />
-                </>
-              )}
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* signup bela matra dekhine: role toggle + name field */}
+                    {!isSignIn && (
+                      <>
+                        <div className="flex rounded-full border border-slate-700 bg-[#1A1D2E] p-1">
+                          <button
+                            type="button"
+                            onClick={() => setRole('customer')}
+                            className={`flex-1 rounded-full px-3 py-2 text-xs font-semibold transition ${
+                              role === 'customer' ? 'bg-blue-600 text-white' : 'text-slate-400'
+                            }`}
+                          >
+                            I'm a Customer
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setRole('seller')}
+                            className={`flex-1 rounded-full px-3 py-2 text-xs font-semibold transition ${
+                              role === 'seller' ? 'bg-blue-600 text-white' : 'text-slate-400'
+                            }`}
+                          >
+                            I'm a Seller
+                          </button>
+                        </div>
 
-              <LabeledField
-                id="email"
-                label="Email address"
-                placeholder="anshu@gmail.com"
-                value={form.email}
-                onChange={updateField("email")}
-                autoComplete="email"
-              />
+                        <FloatingField
+                          id="name"
+                          label="Full Name"
+                          value={form.name}
+                          onChange={updateField('name')}
+                          autoComplete="name"
+                        />
+                      </>
+                    )}
 
-              <LabeledField
-                id="password"
-                label="Password"
-                placeholder="••••••••"
-                type="password"
-                value={form.password}
-                onChange={updateField("password")}
-                autoComplete={
-                  isSignIn
-                    ? "current-password"
-                    : "new-password"
-                }
-              />
+                    <FloatingField
+                      id="email"
+                      label="Email"
+                      type="text"
+                      value={form.email}
+                      onChange={updateField('email')}
+                      autoComplete="email"
+                    />
 
-              {/* Status Banner */}
-              {error && (
-                <div
-                  className={`rounded-xl border px-4 py-3 text-sm transition-all duration-300 ${
-                    isSuccessMessage
-                      ? "border-green-500/30 bg-green-500/10 text-green-300"
-                      : "border-red-500/30 bg-red-500/10 text-red-300"
-                  }`}
-                >
-                  {error}
+                    <FloatingField
+                      id="password"
+                      label="Password"
+                      type="password"
+                      value={form.password}
+                      onChange={updateField('password')}
+                      autoComplete={isSignIn ? 'current-password' : 'new-password'}
+                    />
+
+                    {/* error/success message, color le differentiate garne */}
+                    {error && (
+                      <p className={`text-sm font-medium ${isSuccessMessage ? 'text-green-400' : 'text-red-400'}`}>
+                        {error}
+                      </p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="relative mt-2 flex w-full items-center justify-center overflow-hidden rounded-2xl border border-blue-500/50 bg-blue-600 px-4 py-3.5 text-sm font-semibold text-white shadow-[0_0_28px_rgba(37,99,235,0.35)] transition duration-300 hover:scale-[1.01] hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25 disabled:opacity-60"
+                    >
+                      <span className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent)] opacity-60 transition-transform duration-700 hover:translate-x-full" />
+                      <span className="relative">
+                        {isSubmitting
+                          ? (isSignIn ? 'Signing in…' : 'Creating your account…')
+                          : (isSignIn ? 'Continue to dashboard' : 'Create account')}
+                      </span>
+                      {isSubmitting && (
+                        <span className="relative ml-3 h-2.5 w-2.5 animate-pulse rounded-full bg-white" />
+                      )}
+                    </button>
+                  </form>
                 </div>
-              )}
-
-              {/* Submit Action */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="
-                w-full
-                rounded-xl
-                bg-blue-600
-                py-3
-                text-sm
-                font-semibold
-                text-white
-                transition-all
-                duration-300
-                hover:bg-blue-500
-                hover:shadow-[0_0_35px_rgba(59,130,246,.45)]
-                disabled:cursor-not-allowed
-                disabled:opacity-60
-                "
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center justify-center gap-3">
-                    <svg
-                      className="h-5 w-5 animate-spin"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        className="opacity-25"
-                      />
-
-                      <path
-                        fill="currentColor"
-                        className="opacity-75"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                      />
-                    </svg>
-
-                    {isSignIn
-                      ? "Signing In..."
-                      : "Creating Account..."}
-                  </span>
-                ) : (
-                  <>
-                    {isSignIn
-                      ? "Continue to Dashboard"
-                      : "Create account"}
-                  </>
-                )}
-              </button>
-
-              {/* Form Footer Switcher */}
-              <div className="pt-1 text-center text-xs text-slate-400">
-                {isSignIn ? (
-                  <>
-                    Don't have an account?{" "}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMode("signup");
-                        setError("");
-                      }}
-                      className="font-medium text-blue-400 hover:text-blue-300"
-                    >
-                      Create one
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    Already have an account?{" "}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMode("signin");
-                        setError("");
-                      }}
-                      className="font-medium text-blue-400 hover:text-blue-300"
-                    >
-                      Sign In
-                    </button>
-                  </>
-                )}
               </div>
-            </form>
+            </div>
           </div>
         </section>
       </div>
     </main>
-  );
+  )
 }
 
-export default Auth;
+// GadgetHub logo, blue-amber gradient sanga
+function Logo() {
+  return (
+    <svg
+      viewBox="0 0 80 80"
+      className="h-full w-full"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ animation: 'float 6s ease-in-out infinite' }}
+    >
+      <defs>
+        <linearGradient id="gadgetHubGradient" x1="12" y1="10" x2="68" y2="72" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FFE7AE" />
+          <stop offset="0.5" stopColor="#f4bb60" />
+          <stop offset="1" stopColor="#B88942" />
+        </linearGradient>
+      </defs>
+
+      <path d="M40 12L56 22L56 38L40 48L24 38L24 22L40 12Z" fill="url(#gadgetHubGradient)" opacity="0.18" />
+      <path d="M24 22L40 12L56 22L40 32L24 22Z" fill="url(#gadgetHubGradient)" />
+      <path d="M40 32L56 22V38L40 48V32Z" fill="url(#gadgetHubGradient)" opacity="0.8" />
+      <path d="M40 32L24 22V38L40 48V32Z" fill="url(#gadgetHubGradient)" opacity="0.6" />
+      <path d="M18 47L31 39L40 44L27 52L18 47Z" fill="url(#gadgetHubGradient)" opacity="0.9" />
+      <path d="M62 47L49 39L40 44L53 52L62 47Z" fill="url(#gadgetHubGradient)" opacity="0.9" />
+      <path d="M40 48L27 52L40 60L53 52L40 48Z" fill="url(#gadgetHubGradient)" />
+    </svg>
+  )
+}
+
+export default Auth

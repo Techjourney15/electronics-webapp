@@ -13,9 +13,9 @@ function ProductCard({ product, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-800/80 bg-[#0c1322]/90 shadow-xl transition duration-300 hover:-translate-y-1 hover:border-slate-700 hover:shadow-2xl"
+      className="group cursor-pointer overflow-hidden rounded-[20px] border border-slate-700/60 bg-[#111827] shadow-[0_6px_24px_-8px_rgba(0,0,0,0.4)] transition duration-300 hover:-translate-y-1 hover:border-slate-600 hover:shadow-[0_12px_36px_-8px_rgba(37,99,235,0.25)]"
     >
-      <div className="aspect-square w-full overflow-hidden bg-[#11192e]">
+      <div className="aspect-square w-full overflow-hidden bg-[#1A1D2E]">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -30,13 +30,13 @@ function ProductCard({ product, onClick }) {
         )}
       </div>
       <div className="p-4">
-        <p className="line-clamp-1 text-sm font-semibold text-white">
+        <p className="line-clamp-1 text-sm font-semibold text-slate-100">
           {product.product_name}
         </p>
-        <p className="mt-1 text-xs font-medium uppercase tracking-wider text-[#3b82f6]">
+        <p className="mt-1 text-xs uppercase tracking-[0.16em] text-blue-400">
           {product.sub_category}
         </p>
-        <p className="mt-2 text-base font-bold text-white">
+        <p className="mt-2 text-base font-semibold text-white">
           Rs. {product.price_npr?.toLocaleString()}
         </p>
       </div>
@@ -60,10 +60,11 @@ function SearchResults() {
     setLoading(true);
     setError("");
 
-    axios
-      .get(`${API}/catalog/products/semantic-search/`, {
-        params: { q: query },
-      })
+
+        axios
+    .get(`${API}/catalog/products/semantic-search/`, {
+      params: { q: query },
+    })
       .then((res) => {
         setResults(res.data.results || []);
         setCount(res.data.count || 0);
@@ -78,20 +79,30 @@ function SearchResults() {
   };
 
   return (
-    <main className="relative min-h-screen bg-[#070b14] text-slate-100">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_center,rgba(24,75,255,0.12),transparent_50%)] pointer-events-none" />
+    <main className="relative min-h-screen overflow-hidden bg-[#0A0D18] text-slate-100">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.18),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(217,119,6,0.12),transparent_34%)]" />
+      <div className="absolute inset-0 opacity-15 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:72px_72px]" />
 
       <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-8">
         <button
           onClick={() => navigate('/homepage')}
-          className="mb-6 text-sm font-semibold text-[#3b82f6] hover:text-blue-400 transition"
+          className="mb-6 text-sm font-semibold text-blue-400 hover:text-blue-300 hover:underline"
         >
           ← Back to homepage
         </button>
 
+        {/* search bar, same style as homepage */}
         <form onSubmit={handleSubmit} className="mx-auto mb-10 max-w-2xl">
-          <div className="flex items-center gap-2 rounded-full border border-slate-800 bg-[#0c1322]/90 px-5 py-3 shadow-2xl backdrop-blur-xl focus-within:border-[#1d4ed8]">
-            <span className="text-slate-400">🔍</span>
+          <div className="flex items-center gap-2 rounded-full border border-slate-700 bg-[#111827] px-5 py-3 shadow-sm transition focus-within:ring-2 focus-within:ring-blue-500/20">
+            <svg
+              className="h-5 w-5 flex-shrink-0 text-slate-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+            </svg>
             <input
               type="text"
               value={inputValue}
@@ -101,7 +112,7 @@ function SearchResults() {
             />
             <button
               type="submit"
-              className="rounded-full bg-[#1d4ed8] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#1e40af] transition"
+              className="rounded-full bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-blue-500 transition"
             >
               Search
             </button>
@@ -119,7 +130,7 @@ function SearchResults() {
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                className="aspect-[3/4] animate-pulse rounded-2xl border border-slate-800/60 bg-[#0c1322]/50"
+                className="aspect-[3/4] animate-pulse rounded-[20px] border border-slate-700/60 bg-[#111827]/50"
               />
             ))}
           </div>

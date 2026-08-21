@@ -19,6 +19,7 @@ function AdminDashboard() {
   const [sellers, setSellers] = useState([])
   const [orders, setOrders] = useState([])
   const [actionError, setActionError] = useState('')
+  const [deletingId, setDeletingId] = useState(null)
 
   useEffect(() => {
     const token = localStorage.getItem('access_token')
@@ -62,6 +63,19 @@ function AdminDashboard() {
       .catch(() => setActionError('Could not update seller status.'))
   }
 
+  const handleDeleteUser = (userId, isSeller) => {
+    if (!window.confirm(`Are you sure you want to delete this ${isSeller ? 'seller' : 'customer'}? This cannot be undone.`)) {
+      return
+    }
+    setDeletingId(userId)
+    setActionError('')
+    axios
+      .delete(`${API_BASE}/auth/admin/users/${userId}/delete/`, { headers: authHeaders() })
+      .then(() => loadAll())
+      .catch(() => setActionError('Could not delete this account.'))
+      .finally(() => setDeletingId(null))
+  }
+
   const handleLogout = () => {
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
@@ -100,11 +114,9 @@ function AdminDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold tracking-widest text-white">NEXORA</p>
-
-  <h1 className="mt-1 text-3xl font-bold bg-gradient-to-r from-[#5182f6] via-[#a38bd2] to-[#f3a251] bg-clip-text text-transparent">
-    Admin Dashboard
-  </h1>
-
+            <h1 className="mt-1 text-3xl font-bold bg-gradient-to-r from-[#5182f6] via-[#a38bd2] to-[#f3a251] bg-clip-text text-transparent">
+              Admin Dashboard
+            </h1>
           </div>
           <button
             onClick={handleLogout}
@@ -188,6 +200,13 @@ function AdminDashboard() {
                             </button>
                           </>
                         )}
+                        <button
+                          onClick={() => handleDeleteUser(s.user_id || s.id, true)}
+                          disabled={deletingId === (s.user_id || s.id)}
+                          className="rounded-full border border-slate-700 bg-[#1a2137] px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-rose-950/40 hover:text-rose-400 hover:border-rose-800/50 transition disabled:opacity-50"
+                        >
+                          {deletingId === (s.user_id || s.id) ? 'Deleting…' : 'Delete'}
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -209,6 +228,7 @@ function AdminDashboard() {
                         <th className="pb-2">Name</th>
                         <th className="pb-2">Email</th>
                         <th className="pb-2">Joined</th>
+                        <th className="pb-2 text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800/60">
@@ -217,6 +237,15 @@ function AdminDashboard() {
                           <td className="py-3 font-medium text-white">{c.first_name || '—'}</td>
                           <td className="py-3 text-slate-300">{c.email || c.username}</td>
                           <td className="py-3 text-slate-400">{new Date(c.date_joined).toLocaleDateString()}</td>
+                          <td className="py-3 text-right">
+                            <button
+                              onClick={() => handleDeleteUser(c.id, false)}
+                              disabled={deletingId === c.id}
+                              className="rounded-full border border-slate-700 bg-[#1a2137] px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-rose-950/40 hover:text-rose-400 hover:border-rose-800/50 transition disabled:opacity-50"
+                            >
+                              {deletingId === c.id ? 'Deleting…' : 'Delete'}
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

@@ -4,6 +4,7 @@ from accounts.models import Seller
 from django.conf import settings
 
 
+
 class Brand(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -88,6 +89,7 @@ class Order(models.Model):
     total_amount = models.IntegerField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    khalti_pidx = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return f"Order #{self.id} ({self.status})"
@@ -102,3 +104,35 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product_name_snapshot}"
+
+
+class ProductView(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='product_views')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} viewed {self.product.product_name}"
+
+
+class SearchLog(models.Model):
+    SEARCH_TYPES = (('text', 'Text'), ('image', 'Image'))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='search_logs', null=True, blank=True)
+    search_type = models.CharField(max_length=10, choices=SEARCH_TYPES)
+    query_text = models.CharField(max_length=255, blank=True)
+    matched_product_ids = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.search_type} search by {self.user_id or 'anon'} at {self.created_at}"
+
+   
+
+class Feedback(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback from {self.name} - {self.email}"

@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .payment import initiate_payment, verify_payment
 
 urlpatterns = [
     path('products/<int:product_id>/recommendations/', views.get_recommendations, name='product-recommendations'),
@@ -20,7 +21,11 @@ urlpatterns = [
     path('orders/', views.my_orders, name='my-orders'),
     path('checkout/', views.checkout, name='checkout'),
     path('admin/orders/', views.all_orders, name='all-orders'),
+    path('sellers/<int:seller_id>/products/', views.seller_storefront, name='seller-storefront'),
+    path('products/log-view/', views.log_product_view, name='log-product-view'),
+    path('products/visual-search/', views.visual_search, name='visual-search'),
     path('products/semantic-search/', views.semantic_search, name='semantic-search'),
-    path('khalti/initiate/', views.khalti_initiate, name='khalti-initiate'),
-    path('khalti/verify/', views.khalti_verify, name='khalti-verify'),
+    path('khalti/initiate/', initiate_payment, name='khalti-initiate'),
+    path('khalti/verify/', verify_payment, name='khalti-verify'),
+    path('feedback/', views.submit_feedback, name='submit-feedback'),
 ]

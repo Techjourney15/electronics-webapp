@@ -34,16 +34,25 @@ function RecommendationCard({ product, onClick }) {
         )}
       </div>
 
-      <div className="p-3">
-        <p className="line-clamp-1 text-sm font-semibold text-white">
-          {product.product_name}
-        </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">
+        {product.sub_category}
+        {product.seller && (
+          <>
+            {" · "}
+            <span
+              onClick={() => navigate(`/seller/${product.seller}`)}
+              className="cursor-pointer underline decoration-blue-400/40 underline-offset-2 hover:text-blue-300"
+            >
+              {product.seller_name}
+            </span>
+          </>
+        )}
+      </p>
 
         <p className="mt-1 text-sm font-semibold text-amber-400">
           Rs. {product.price_npr}
         </p>
       </div>
-    </div>
   );
 }
 
@@ -57,7 +66,7 @@ function ProductDetail() {
   const [cartMessage, setCartMessage] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
-
+  const [userRole, setUserRole] = useState(null);
   const token = localStorage.getItem("access_token");
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -70,14 +79,13 @@ function ProductDetail() {
         { product_id: Number(id), quantity: 1 },
         authHeader
       );
-      setCartMessage("Added to cart!");
+      setCartMessage("✅ Added to cart successfully.");
     } catch (err) {
       setCartMessage(err.response?.data?.error || "Could not add to cart.");
     } finally {
       setIsAdding(false);
     }
   };
-
   const handleBuyNow = async () => {
     setIsBuyingNow(true);
     setCartMessage("");
@@ -115,6 +123,16 @@ function ProductDetail() {
       .get(`${API}/catalog/products/${id}/recommendations/`, authHeader)
       .then((res) => setRecommendations(res.data.recommendations || []))
       .catch(() => {});
+
+    axios
+    .get(`${API}/auth/my-profile/`, authHeader)
+    .then((res) => setUserRole(res.data.role))
+    .catch(() => {});
+
+    axios
+      .post(`${API}/catalog/products/log-view/`, { product_id: Number(id) }, authHeader)
+      .then((res) => console.log("log-view success:", res.data))
+      .catch((err) => console.error("log-view failed:", err.response?.status, err.response?.data));
   }, [id]);
 
   if (loading) {
@@ -209,10 +227,10 @@ function ProductDetail() {
 
       <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-8">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(userRole === "seller" ? "/seller-dashboard" : "/homepage")}
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 transition hover:text-blue-300"
         >
-          ← Back
+          ← Home
         </button>
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
@@ -237,7 +255,7 @@ function ProductDetail() {
           {/* Product Details Section */}
           <div className="flex flex-col justify-center">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">
-              {product.sub_category} · {product.seller_name}
+              {product.sub_category} 
             </p>
 
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
@@ -326,5 +344,6 @@ function ProductDetail() {
     </main>
   );
 }
+
 
 export default ProductDetail;

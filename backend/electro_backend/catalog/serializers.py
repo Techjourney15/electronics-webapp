@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Product
 from .models import Category, Brand
 from .models import Cart, CartItem, Order, OrderItem
+from .models import Feedback
+
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -61,3 +63,11 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id', 'total_amount', 'status', 'created_at', 'items']
+
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = ['id', 'name', 'email', 'message', 'created_at']
+        read_only_fields = ['id', 'created_at']
+        
