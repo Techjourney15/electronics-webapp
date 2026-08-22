@@ -124,3 +124,12 @@ class SearchLog(models.Model):
 
     def __str__(self):
         return f"{self.search_type} search by {self.user_id or 'anon'} at {self.created_at}"
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favorites')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')

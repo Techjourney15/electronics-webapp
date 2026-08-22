@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import axios from 'axios'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import NavBar from './NavBar'
 
 const API_BASE = 'http://127.0.0.1:8000/api'
 const MEDIA_BASE = 'http://127.0.0.1:8000'
@@ -142,38 +143,26 @@ function CustomerDashboard() {
   }
 
   const tabs = [
-    { id: 'profile', label: 'Profile' },
+    { id: 'profile', label: 'Account' },
     { id: 'preferences', label: 'Preferences' },
     { id: 'cart', label: 'Cart' },
     { id: 'orders', label: 'Orders' },
   ]
 
   return (
-    <main className="min-h-screen bg-[#0A0D18] px-4 py-10 sm:px-8 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(37,99,235,0.12),rgba(255,255,255,0))]">
-      <div className="mx-auto max-w-5xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold tracking-widest bg-gradient-to-r from-[#2563EB] via-[#F59E0B] to-[#FF5500] bg-clip-text text-transparent">NEXORA</p>
-            <h1 className="mt-1 text-3xl font-bold text-white">
-              Welcome, {profile.first_name || profile.username}
-            </h1>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="rounded-full border border-red-500/40 bg-red-500/10 px-5 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-500/20 hover:border-red-500/60 hover:text-red-300"
-          >
-            Log out
-          </button>
+    <main className="min-h-screen bg-[#0A0D18] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(37,99,235,0.12),rgba(255,255,255,0))]">
+      <NavBar />
+
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-8">
+        <div>
+          <p className="text-xs font-semibold tracking-widest bg-gradient-to-r from-[#2563EB] via-[#F59E0B] to-[#FF5500] bg-clip-text text-transparent">NEXORA</p>
+          <h1 className="mt-1 text-3xl font-bold text-white">
+            Welcome, {profile.first_name || profile.username}
+          </h1>
         </div>
 
         {/* Tabs */}
         <div className="mt-8 inline-flex rounded-full border border-slate-700/60 bg-[#111827] p-1.5 shadow-inner">
-          <button
-            onClick={() => navigate('/homepage')}
-            className="rounded-full px-5 py-2 text-sm font-semibold text-slate-400 transition-all hover:text-slate-200"
-          >
-            Home
-          </button>
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -206,12 +195,23 @@ function CustomerDashboard() {
               </div>
 
               {!isEditing ? (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <Field label="Full name" value={profile.first_name || '—'} />
-                  <Field label="Email" value={profile.email || '—'} />
-                  <Field label="Username" value={profile.username} />
-                  <Field label="Role" value="Customer" />
-                </div>
+                <>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <Field label="Full name" value={profile.first_name || '—'} />
+                    <Field label="Email" value={profile.email || '—'} />
+                    <Field label="Phone number" value={profile.phone || 'Not added yet'} />
+                    <Field label="Saved address" value={profile.address || 'Not added yet'} />
+                    <Field label="Username" value={profile.username} />
+                    <Field label="Role" value="Customer" />
+                  </div>
+
+                  <button
+                    onClick={handleLogout}
+                    className="mt-2 rounded-full border border-red-500/40 bg-red-500/10 px-5 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-500/20 hover:border-red-500/60 hover:text-red-300"
+                  >
+                    Log out
+                  </button>
+                </>
               ) : (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

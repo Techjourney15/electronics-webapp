@@ -28,4 +28,6 @@ urlpatterns = [
     path('products/semantic-search/', views.semantic_search, name='semantic-search'),
     path('khalti/initiate/', views.khalti_initiate, name='khalti-initiate'),
     path('khalti/verify/', views.khalti_verify, name='khalti-verify'),
+    path('products/<int:product_id>/toggle-favorite/', views.toggle_favorite, name='toggle-favorite'),
+    path('favorites/', views.list_favorites, name='list-favorites'),
 ]

@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import pickle
 import tempfile
@@ -11,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.exceptions import PermissionDenied
 
-from .models import Product, Category, Brand, Cart, CartItem, Order, OrderItem, ProductView, SearchLog
+from .models import Product, Category, Brand, Cart, CartItem, Order, OrderItem, ProductView, SearchLog, Favorite
 from .serializers import ProductSerializer, CategorySerializer, BrandSerializer
 from accounts.permissions import IsSeller
 from .image_search import extract_features, compare_features
@@ -179,6 +180,9 @@ def personalized_homepage(request):
     for pid in Product.objects.filter(cartitem__cart__user=user).values_list('product_id', flat=True).distinct():
         add_weight(pid, 2)
 
+    for pid in Product.objects.filter(favorite__user=user).values_list('product_id', flat=True).distinct():
+        add_weight(pid, 2.5)
+
     recent_views = ProductView.objects.filter(user=user).order_by('-viewed_at')[:50]
     for v in recent_views:
         add_weight(v.product.product_id, 1)
@@ -210,6 +214,19 @@ def personalized_homepage(request):
                 product_ids[i] for i in ranked_indices
                 if product_ids[i] not in excluded
             ]
+
+            # Lead the list with items most similar to whatever the user viewed most recently
+            last_view = ProductView.objects.filter(user=user).order_by('-viewed_at').first()
+            if last_view and last_view.product.product_id in product_ids:
+                lv_idx = product_ids.index(last_view.product.product_id)
+                lv_ranked = np.argsort(-matrix[lv_idx])
+                lv_similar_ids = [
+                    product_ids[i] for i in lv_ranked
+                    if product_ids[i] != last_view.product.product_id
+                    and product_ids[i] not in excluded
+                ][:5]
+                remaining = [bid for bid in ranked_business_ids if bid not in lv_similar_ids]
+                ranked_business_ids = lv_similar_ids + remaining
 
             candidates_qs = Product.objects.filter(
                 product_id__in=ranked_business_ids, stock_quantity__gt=0
@@ -633,7 +650,7 @@ def semantic_search(request):
     scores = st_util.cos_sim(query_vec, product_vecs)[0].numpy()
     order = np.argsort(-scores)[:30]
 
-    top_ids = [product_ids[i] for i in order if scores[i] > 0.4]
+    top_ids = [product_ids[i] for i in order if scores[i] > 0.2]
 
     products_qs = Product.objects.filter(id__in=top_ids, stock_quantity__gt=0)
     if min_price:
@@ -643,6 +660,19 @@ def semantic_search(request):
 
     products_by_id = {p.id: p for p in products_qs}
     ordered = [products_by_id[pid] for pid in top_ids if pid in products_by_id]
+
+    sort_by = request.GET.get('sort')  # 'price_asc' | 'price_desc' | None
+
+    if sort_by == 'price_asc':
+        ordered.sort(key=lambda p: p.price_npr)
+    elif sort_by == 'price_desc':
+        ordered.sort(key=lambda p: -p.price_npr)
+    else:
+        # query ma price jasto number cha bhane, tyo price sanga najik ka product pahila dekhaune
+        price_match = re.search(r'\b(\d{4,7})\b', query)
+        if price_match:
+            target_price = int(price_match.group(1))
+            ordered.sort(key=lambda p: abs(p.price_npr - target_price))
 
     serializer = ProductSerializer(ordered, many=True)
 
@@ -667,3 +697,27 @@ def log_product_view(request):
         return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
     ProductView.objects.create(user=request.user, product=product)
     return Response({'status': 'logged'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def toggle_favorite(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    favorite = Favorite.objects.filter(user=request.user, product=product).first()
+    if favorite:
+        favorite.delete()
+        return Response({'favorited': False})
+    Favorite.objects.create(user=request.user, product=product)
+    return Response({'favorited': True})
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_favorites(request):
+    favs = Favorite.objects.filter(user=request.user).select_related('product').order_by('-created_at')
+    products = [f.product for f in favs]
+    return Response(ProductSerializer(products, many=True).data)

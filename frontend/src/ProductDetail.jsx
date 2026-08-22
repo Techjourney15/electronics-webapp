@@ -67,6 +67,7 @@ function ProductDetail() {
   const [isAdding, setIsAdding] = useState(false);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [isFavorited, setIsFavorited] = useState(false);
   const token = localStorage.getItem("access_token");
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -79,7 +80,7 @@ function ProductDetail() {
         { product_id: Number(id), quantity: 1 },
         authHeader
       );
-      setCartMessage("✅ Added to cart successfully.");
+      setCartMessage("Added to cart successfully.");
     } catch (err) {
       setCartMessage(err.response?.data?.error || "Could not add to cart.");
     } finally {
@@ -110,6 +111,19 @@ function ProductDetail() {
     }
   };
 
+  const toggleFavorite = async () => {
+    try {
+      const res = await axios.post(
+        `${API}/catalog/products/${id}/toggle-favorite/`,
+        {},
+        authHeader
+      );
+      setIsFavorited(res.data.favorited);
+    } catch (err) {
+      console.error("toggle favorite failed:", err.response?.status, err.response?.data);
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
 
@@ -125,9 +139,14 @@ function ProductDetail() {
       .catch(() => {});
 
     axios
-    .get(`${API}/auth/my-profile/`, authHeader)
-    .then((res) => setUserRole(res.data.role))
-    .catch(() => {});
+      .get(`${API}/auth/my-profile/`, authHeader)
+      .then((res) => setUserRole(res.data.role))
+      .catch(() => {});
+
+    axios
+      .get(`${API}/catalog/favorites/`, authHeader)
+      .then((res) => setIsFavorited(res.data.some((p) => p.id === Number(id))))
+      .catch(() => {});
 
     axios
       .post(`${API}/catalog/products/log-view/`, { product_id: Number(id) }, authHeader)
@@ -180,7 +199,12 @@ function ProductDetail() {
     ["Weight", product.weight_grams && `${product.weight_grams} g`],
     ["Color", product.color],
     ["Warranty", product.warranty_years && `${product.warranty_years} year(s)`],
-  ].filter(([, value]) => value);
+  ].filter(([, value]) => {
+    if (value === null || value === undefined || value === false) return false;
+    const text = String(value).trim().toLowerCase();
+    const placeholders = ["", "nan", "none", "null", "n/a", "na", "-", "undefined"];
+    return !placeholders.includes(text);
+  });
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#0A0D18] text-white">
@@ -279,6 +303,7 @@ function ProductDetail() {
             <p className="mt-6 text-sm leading-6 text-slate-300">
               {product.description}
             </p>
+          
 
             {/* Specifications Grid */}
             <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 rounded-2xl border border-slate-700/50 bg-[#1A1D2E]/50 p-5 backdrop-blur-lg">
@@ -296,21 +321,62 @@ function ProductDetail() {
 
             {/* Action Buttons */}
             {product.stock_quantity > 0 && (
-              <div className="mt-8 flex flex-col gap-3 border-t border-slate-800 pt-6 sm:flex-row">
+              <div className="mt-8 flex items-center gap-3 border-t border-slate-800 pt-6">
+                <button
+                  onClick={toggleFavorite}
+                  aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+                  className={`flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-full border transition ${
+                    isFavorited
+                      ? "border-red-500 bg-red-500/10 text-red-400"
+                      : "border-slate-700 bg-[#1A1D2E] text-slate-300 hover:border-red-500 hover:text-red-400"
+                  }`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill={isFavorited ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    strokeWidth={1.8}
+                    className="h-5 w-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                    />
+                  </svg>
+                </button>
+
                 <button
                   onClick={handleAddToCart}
                   disabled={isAdding || isBuyingNow}
-                  className="rounded-full border border-blue-500 bg-blue-600/10 px-6 py-3 text-sm font-semibold text-blue-400 transition hover:bg-blue-600 hover:text-white disabled:opacity-60"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-full border border-slate-700 bg-[#1A1D2E] px-6 py-3 text-sm font-semibold text-slate-100 transition hover:border-blue-500 hover:text-blue-400 disabled:opacity-60 sm:flex-none"
                 >
-                  {isAdding ? "Adding…" : "🛒 Add to Cart"}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.8}
+                    className="h-[18px] w-[18px]"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.25 3h1.386c.51 0 .955.343 1.087.836l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.98-4.716 2.545-7.221a.75.75 0 00-.729-.914H5.106M7.5 14.25L5.106 5.25M7.5 14.25l-1.719 4.32a.75.75 0 00.694 1.03h9.5"
+                    />
+                    <circle cx="9" cy="20.25" r="1" fill="currentColor" stroke="none" />
+                    <circle cx="17.25" cy="20.25" r="1" fill="currentColor" stroke="none" />
+                  </svg>
+                  {isAdding ? "Adding…" : "Add to Cart"}
                 </button>
 
                 <button
                   onClick={handleBuyNow}
                   disabled={isAdding || isBuyingNow}
-                  className="rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] disabled:opacity-60"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] disabled:opacity-60 sm:flex-none"
                 >
-                  {isBuyingNow ? "Processing…" : "💳 Proceed to Payment"}
+                  {isBuyingNow ? "Processing…" : "Buy Now"}
                 </button>
               </div>
             )}

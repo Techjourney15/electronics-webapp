@@ -54,24 +54,24 @@ function SearchResults() {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [sortBy, setSortBy] = useState(""); // 'price_asc' | 'price_desc' | ''
 
   useEffect(() => {
     setInputValue(query);
     setLoading(true);
     setError("");
 
-
-        axios
-    .get(`${API}/catalog/products/semantic-search/`, {
-      params: { q: query },
-    })
+    axios
+      .get(`${API}/catalog/products/semantic-search/`, {
+        params: { q: query, sort: sortBy || undefined },
+      })
       .then((res) => {
         setResults(res.data.results || []);
         setCount(res.data.count || 0);
       })
       .catch(() => setError("Could not load search results."))
       .finally(() => setLoading(false));
-  }, [query]);
+  }, [query, sortBy]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -118,6 +118,33 @@ function SearchResults() {
             </button>
           </div>
         </form>
+
+        {/* sort buttons — price low-to-high / high-to-low */}
+        {results.length > 0 && (
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Sort by price:</span>
+            <button
+              onClick={() => setSortBy(sortBy === 'price_asc' ? '' : 'price_asc')}
+              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                sortBy === 'price_asc'
+                  ? 'border-blue-500 bg-blue-600 text-white'
+                  : 'border-slate-700 bg-[#111827] text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              Low to High
+            </button>
+            <button
+              onClick={() => setSortBy(sortBy === 'price_desc' ? '' : 'price_desc')}
+              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                sortBy === 'price_desc'
+                  ? 'border-blue-500 bg-blue-600 text-white'
+                  : 'border-slate-700 bg-[#111827] text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              High to Low
+            </button>
+          </div>
+        )}
 
         {query && (
           <h1 className="mb-6 text-lg font-medium text-slate-300">
