@@ -678,6 +678,7 @@ def log_product_view(request):
     return Response({'status': 'logged'})
 
 
+ # New updated code
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def submit_feedback(request):

@@ -1,3 +1,5 @@
+
+//Updated code in frontend/src/Navbar.jsx
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 

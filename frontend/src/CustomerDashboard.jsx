@@ -1,3 +1,4 @@
+//Updated code in frontend/src/CustomerDashboard.jsx
 import { useEffect, useState, useCallback } from 'react'
 import axios from 'axios'
 import { useNavigate, useSearchParams } from 'react-router-dom'

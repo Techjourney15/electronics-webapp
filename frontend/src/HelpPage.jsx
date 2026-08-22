@@ -1,3 +1,4 @@
+//Updated code in frontend/src/HelpPage.jsx
 import NavBar from "./NavBar.jsx";
 
 export default function HelpPage() {

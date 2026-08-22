@@ -27,5 +27,5 @@ urlpatterns = [
     path('products/semantic-search/', views.semantic_search, name='semantic-search'),
     path('khalti/initiate/', initiate_payment, name='khalti-initiate'),
     path('khalti/verify/', verify_payment, name='khalti-verify'),
-    path('feedback/', views.submit_feedback, name='submit-feedback'),
+    path('feedback/', views.submit_feedback, name='submit-feedback'),#updated code
 ]

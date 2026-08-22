@@ -1,3 +1,4 @@
+//Updated code in frontend/src/PoliciesPage.jsx
 import NavBar from "./NavBar.jsx";
 
 export default function PoliciesPage() {

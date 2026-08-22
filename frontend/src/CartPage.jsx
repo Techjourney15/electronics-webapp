@@ -1,3 +1,5 @@
+//Updated code in frontend/src/CartPage.jsx
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";

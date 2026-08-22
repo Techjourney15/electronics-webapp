@@ -1,3 +1,4 @@
+//Updated code in frontend/src/CheckoutPage.jsx
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'

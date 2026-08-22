@@ -1,3 +1,5 @@
+//Updated code in frontend/src/PromoBanner.jsx
+
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";

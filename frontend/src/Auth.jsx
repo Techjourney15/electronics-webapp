@@ -1,3 +1,6 @@
+
+//Updated code in frontend/src/Auth.jsx
+
 import { useState } from 'react'
 import axios from 'axios'
 import deviceImage from "./assets/Mobile.webp"; // background photo ko lagi (hero image, unchanged)

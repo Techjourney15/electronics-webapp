@@ -126,7 +126,7 @@ class SearchLog(models.Model):
     def __str__(self):
         return f"{self.search_type} search by {self.user_id or 'anon'} at {self.created_at}"
 
-   
+   # New updated code
 
 class Feedback(models.Model):
     name = models.CharField(max_length=100)

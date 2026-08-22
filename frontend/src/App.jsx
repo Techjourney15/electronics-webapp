@@ -13,6 +13,8 @@ import SearchResults from "./SearchResults";
 import PaymentCallback from "./PaymentCallback";
 import CheckoutPage from "./CheckoutPage";
 import SellerStorefront from "./SellerStorefront";
+
+//updated code
 import AccountPage from "./AccountPage";
 import OrdersPage from "./OrdersPage";
 import CartPage from "./CartPage";
@@ -51,6 +53,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+    {/*updated code from this  to */}
       <Route
         path="/account"
         element={
@@ -81,7 +85,7 @@ function App() {
       <Route path="/help" element={<HelpPage />} />
       <Route path="/policies" element={<PoliciesPage />} />
       <Route path="/feedback" element={<FeedbackPage />} />
-
+{/*this is the end of updated code*/}
       {/* Seller Routes */}
       <Route
         path="/seller-dashboard"

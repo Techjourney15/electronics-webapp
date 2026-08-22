@@ -1,3 +1,4 @@
+// Updated code in frontend/src/AccountPage.jsx
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";

@@ -64,7 +64,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'total_amount', 'status', 'created_at', 'items']
 
-
+ # New updated code
 class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
