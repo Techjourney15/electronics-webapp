@@ -1,0 +1,22 @@
+myvenv/
+node_modules/
+.env
+__pycache__/
+*.pyc
+db.sqlite3
+dist/
+dist-ssr/
+.vscode/
+.DS_Store
+
+# Ignore recommender folder
+backend/electro_backend/recommender/
+
+# Ignore virtual environment
+backend/electro_backend/venv/
+
+# Ignore uploaded media
+backend/electro_backend/media/
+
+# Ignore generated images
+product_images/
