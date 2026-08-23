@@ -4,10 +4,18 @@ import django
 import pickle
 import numpy as np
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add backend/ to Python path
+BASE_DIR = os.path.dirname(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__))
+        )
+    )
+)
+sys.path.insert(0, BASE_DIR)
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'electro_backend.settings')
 django.setup()
-
 from catalog.models import Product
 from catalog.image_search import extract_features_batch
 from django.conf import settings

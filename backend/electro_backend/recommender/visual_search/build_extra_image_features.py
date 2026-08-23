@@ -4,7 +4,7 @@ import django
 import pickle
 import pandas as pd
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'electro_backend.settings')
 django.setup()
 
