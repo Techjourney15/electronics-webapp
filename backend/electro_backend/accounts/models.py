@@ -40,6 +40,7 @@ class Seller(models.Model):
     business_name = models.CharField(max_length=150)
     contact_info = models.CharField(max_length=100)
     verification_status = models.CharField(max_length=20, choices=VERIFICATION_CHOICES, default='pending')
+    is_dummy = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.business_name} ({self.verification_status})"

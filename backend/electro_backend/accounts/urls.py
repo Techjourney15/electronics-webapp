@@ -12,11 +12,13 @@ from .views import (
     list_customers,
     list_sellers,
     delete_user,
+    EmailTokenObtainPairView,
 )
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('register-seller/', SellerRegisterView.as_view(), name='register-seller'),
+    path('login/', EmailTokenObtainPairView.as_view(), name='login'),
     path('sellers/<int:seller_id>/approve/', ApproveSellerView.as_view(), name='approve-seller'),
     path('preferences/', SetPreferenceView.as_view(), name='set-preferences'),
     path('has-preferences/', has_preferences, name='has-preferences'),
