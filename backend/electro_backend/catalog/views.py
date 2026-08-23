@@ -12,6 +12,8 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.exceptions import PermissionDenied
 
+from .price_parser import parse_price_range
+
 from .models import Product, Category, Brand, Cart, CartItem, Order, OrderItem, ProductView, SearchLog, Favorite
 from .serializers import ProductSerializer, CategorySerializer, BrandSerializer
 from accounts.permissions import IsSeller
@@ -59,40 +61,53 @@ def _load_image_features():
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_recommendations(request, product_id):
-    data = _load_similarity_data()
-    matrix = data['matrix']
-    product_ids = data['product_ids']
-
     try:
         viewed_product = Product.objects.get(id=product_id)
     except Product.DoesNotExist:
         return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    try:
-        idx = product_ids.index(viewed_product.product_id)
-    except ValueError:
-        return Response(
-            {'error': 'Product not found in similarity matrix'},
-            status=status.HTTP_404_NOT_FOUND
-        )
-
-    scores = matrix[idx]
-    order = np.argsort(-scores)
-    order = [i for i in order if i != idx]
-
-    ranked_business_ids = [product_ids[i] for i in order]
-
-    candidates_qs = Product.objects.filter(
-        product_id__in=ranked_business_ids[:30], stock_quantity__gt=0
-    ).exclude(id=viewed_product.id)
-    products_by_business_id = {p.product_id: p for p in candidates_qs}
+    data = _load_similarity_data()
+    matrix = data['matrix']
+    product_ids = data['product_ids']
 
     ordered_results = []
-    for bid in ranked_business_ids:
-        if bid in products_by_business_id:
-            ordered_results.append(products_by_business_id[bid])
-        if len(ordered_results) >= 5:
-            break
+
+    # Trained path: works for anything that was part of the original
+    # dataset (currently Smartphone/Laptop only).
+    if viewed_product.product_id in product_ids:
+        idx = product_ids.index(viewed_product.product_id)
+        scores = matrix[idx]
+        order = np.argsort(-scores)
+        order = [i for i in order if i != idx]
+
+        ranked_business_ids = [product_ids[i] for i in order]
+
+        candidates_qs = Product.objects.filter(
+            product_id__in=ranked_business_ids[:30], stock_quantity__gt=0
+        ).exclude(id=viewed_product.id)
+        products_by_business_id = {p.product_id: p for p in candidates_qs}
+
+        for bid in ranked_business_ids:
+            if bid in products_by_business_id:
+                ordered_results.append(products_by_business_id[bid])
+            if len(ordered_results) >= 5:
+                break
+
+    # Fallback path: the product was never part of the trained dataset
+    # (e.g. Accessories — earbuds, cables, cases). Instead of returning
+    # nothing, recommend other in-stock products from the same category,
+    # ranked by how close their price is to this product's price.
+    if not ordered_results:
+        same_category = (
+            Product.objects.filter(
+                category=viewed_product.category, stock_quantity__gt=0
+            )
+            .exclude(id=viewed_product.id)
+        )
+        ordered_results = sorted(
+            same_category,
+            key=lambda p: abs(p.price_npr - viewed_product.price_npr),
+        )[:5]
 
     result = [
         {
@@ -587,23 +602,37 @@ def checkout(request):
 
     return Response({'order_id': order.id, 'total_amount': total, 'status': order.status})
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def all_orders(request):
     if not request.user.is_staff:
         return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
 
-    orders = Order.objects.all().order_by('-created_at').prefetch_related('items')
+    orders = Order.objects.all().order_by('-created_at').prefetch_related('items__product')
 
     result = []
     for order in orders:
+        items = []
+        for i in order.items.all():
+            # Seller identity is intentionally hidden across the UI, so
+            # every item is attributed to GadgetHub regardless of which
+            # seller actually fulfilled it — no real seller names go out
+            # over the API here.
+            items.append({
+                'product_name': i.product_name_snapshot,
+                'price_at_purchase': i.price_at_purchase,
+                'quantity': i.quantity,
+                'sold_by': 'GadgetHub',
+            })
+
         result.append({
             'id': order.id,
-            'user': order.user.username,
+            'customer_username': order.user.username,
+            'customer_name': order.user.first_name or order.user.username,
             'status': order.status,
             'total_amount': order.total_amount,
             'created_at': order.created_at,
+            'items': items,
         })
 
     return Response(result)
@@ -628,38 +657,93 @@ def _load_product_embeddings():
             PRODUCT_EMBEDDINGS = pickle.load(f)
     return PRODUCT_EMBEDDINGS
 
-
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def semantic_search(request):
-    query = request.GET.get('q', '').strip()
+    raw_query = request.GET.get('q', '').strip()
+    if not raw_query:
+        return Response({'count': 0, 'results': []})
+
+    # Explicit price params (e.g. from a price-range filter control)
+    # always take priority over anything parsed out of the free-text query.
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
 
-    if not query:
-        return Response({'count': 0, 'results': []})
+    parsed_min, parsed_max, cleaned_query, target_price = parse_price_range(raw_query)
+    if min_price is None and parsed_min is not None:
+        min_price = parsed_min
+    if max_price is None and parsed_max is not None:
+        max_price = parsed_max
 
-    model = _load_semantic_model()
-    embeddings = _load_product_embeddings()
+    # Text to search on, with the price phrase removed (e.g. "80000 vivo" -> "vivo")
+    search_text = cleaned_query if cleaned_query.strip() else raw_query
 
-    query_vec = model.encode(query)
-
-    product_ids = list(embeddings.keys())
-    product_vecs = np.array([embeddings[pid] for pid in product_ids])
-
-    scores = st_util.cos_sim(query_vec, product_vecs)[0].numpy()
-    order = np.argsort(-scores)[:30]
-
-    top_ids = [product_ids[i] for i in order if scores[i] > 0.2]
-
-    products_qs = Product.objects.filter(id__in=top_ids, stock_quantity__gt=0)
+    # Build the price + stock eligible pool directly from the database.
+    # This is the ONLY thing that decides which products are allowed to
+    # show up — nothing here depends on any pre-built file.
+    candidates_qs = Product.objects.filter(stock_quantity__gt=0)
     if min_price:
-        products_qs = products_qs.filter(price_npr__gte=min_price)
+        candidates_qs = candidates_qs.filter(price_npr__gte=min_price)
     if max_price:
-        products_qs = products_qs.filter(price_npr__lte=max_price)
+        candidates_qs = candidates_qs.filter(price_npr__lte=max_price)
 
-    products_by_id = {p.id: p for p in products_qs}
-    ordered = [products_by_id[pid] for pid in top_ids if pid in products_by_id]
+    # Plain, direct name/brand/model match against the search text — this
+    # alone guarantees a product with the right price AND a matching name
+    # always shows up, with no dependency on any embeddings file.
+    keyword_qs = candidates_qs
+    words = [w for w in search_text.split() if len(w) > 2]
+    if words:
+        keyword_filter = Q()
+        for w in words:
+            keyword_filter |= (
+                Q(product_name__icontains=w) |
+                Q(brand__name__icontains=w) |
+                Q(model__icontains=w) |
+                Q(description__icontains=w)
+            )
+        keyword_qs = candidates_qs.filter(keyword_filter)
+
+    keyword_matches = list(keyword_qs)
+
+    # On top of the guaranteed keyword matches, also try the semantic
+    # embeddings model for smarter, meaning-based ranking — but ONLY as
+    # an extra layer that can reorder results, never as something that
+    # can hide a product the keyword search already found.
+    semantic_ranked = []
+    try:
+        model = _load_semantic_model()
+        embeddings = _load_product_embeddings()
+        query_vec = model.encode(search_text)
+
+        eligible_products = {p.id: p for p in candidates_qs}
+        eligible_ids = [pid for pid in embeddings.keys() if pid in eligible_products]
+
+        if eligible_ids:
+            eligible_vecs = np.array([embeddings[pid] for pid in eligible_ids])
+            scores = st_util.cos_sim(query_vec, eligible_vecs)[0].numpy()
+            order = np.argsort(-scores)[:30]
+            semantic_ranked = [
+                eligible_products[eligible_ids[i]]
+                for i in order
+                if scores[i] > 0.2
+            ]
+    except Exception:
+        # If the embeddings file is missing, stale, or broken, the search
+        # still works fine off the direct keyword+price match above.
+        semantic_ranked = []
+
+    # Merge: semantic ranking first (it's usually better ordered), then
+    # append any keyword match it missed, so nothing is ever dropped.
+    seen_ids = set()
+    ordered = []
+    for p in semantic_ranked:
+        if p.id not in seen_ids:
+            ordered.append(p)
+            seen_ids.add(p.id)
+    for p in keyword_matches:
+        if p.id not in seen_ids:
+            ordered.append(p)
+            seen_ids.add(p.id)
 
     sort_by = request.GET.get('sort')  # 'price_asc' | 'price_desc' | None
 
@@ -667,25 +751,24 @@ def semantic_search(request):
         ordered.sort(key=lambda p: p.price_npr)
     elif sort_by == 'price_desc':
         ordered.sort(key=lambda p: -p.price_npr)
-    else:
-        # query ma price jasto number cha bhane, tyo price sanga najik ka product pahila dekhaune
-        price_match = re.search(r'\b(\d{4,7})\b', query)
-        if price_match:
-            target_price = int(price_match.group(1))
-            ordered.sort(key=lambda p: abs(p.price_npr - target_price))
+    elif target_price is not None:
+        # No explicit sort chosen, and the query gave one approximate
+        # figure (e.g. "80000 vivo") — lead with whatever's closest to
+        # that figure among the already price-eligible results.
+        ordered.sort(key=lambda p: abs(p.price_npr - target_price))
 
+    ordered = ordered[:30]
     serializer = ProductSerializer(ordered, many=True)
 
     if request.user.is_authenticated:
         SearchLog.objects.create(
             user=request.user,
             search_type='text',
-            query_text=query[:255],
+            query_text=raw_query[:255],
             matched_product_ids=[p.product_id for p in ordered[:10]],
         )
 
     return Response({'count': len(ordered), 'results': serializer.data})
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

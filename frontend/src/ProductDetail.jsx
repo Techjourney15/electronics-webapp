@@ -200,10 +200,16 @@ function ProductDetail() {
     ["Color", product.color],
     ["Warranty", product.warranty_years && `${product.warranty_years} year(s)`],
   ].filter(([, value]) => {
-    if (value === null || value === undefined || value === false) return false;
+    if (value === null || value === undefined || value === false || value === 0) return false;
     const text = String(value).trim().toLowerCase();
     const placeholders = ["", "nan", "none", "null", "n/a", "na", "-", "undefined"];
-    return !placeholders.includes(text);
+    if (placeholders.includes(text)) return false;
+    // Catches "0", "0 GB", "0.00 MP", etc. — a leading numeric value of
+    // zero means the field isn't applicable to this product, not a
+    // real spec worth showing.
+    const leadingNumber = text.match(/^-?\d+(\.\d+)?/);
+    if (leadingNumber && parseFloat(leadingNumber[0]) === 0) return false;
+    return true;
   });
 
   return (

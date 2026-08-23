@@ -113,7 +113,7 @@ function AdminDashboard() {
       <div className="relative mx-auto max-w-6xl">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold tracking-widest text-white">NEXORA</p>
+            <p className="text-xs font-semibold tracking-widest text-white">GADGETHUB</p>
             <h1 className="mt-1 text-3xl font-bold bg-gradient-to-r from-[#5182f6] via-[#a38bd2] to-[#f3a251] bg-clip-text text-transparent">
               Admin Dashboard
             </h1>
@@ -132,6 +132,8 @@ function AdminDashboard() {
           <SummaryCard label="Total Sellers" value={sellers.length} />
           <SummaryCard label="Total Orders" value={orders.length} />
         </div>
+
+
 
         {/* Tabs */}
         <div className="mt-8 flex gap-2 border-b border-slate-800">
@@ -283,7 +285,33 @@ function AdminDashboard() {
                       <p className="mt-1 text-xs text-slate-400">
                         {new Date(order.created_at).toLocaleString()}
                       </p>
-                      <p className="mt-2 text-sm font-semibold text-[#60a5fa]">
+
+                      {/* Line items with per-item seller attribution */}
+                      {order.items && order.items.length > 0 && (
+                        <div className="mt-3 space-y-1.5 border-t border-slate-800/60 pt-3">
+                          {order.items.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className="flex flex-wrap items-center justify-between gap-2 text-sm"
+                            >
+                              <span className="text-slate-200">
+                                {item.product_name}
+                                <span className="text-slate-500"> × {item.quantity}</span>
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-slate-400">
+                                  Rs. {(item.price_at_purchase * item.quantity).toLocaleString()}
+                                </span>
+                                <span className="rounded-full border border-blue-800/50 bg-blue-950/80 px-2.5 py-0.5 text-[11px] font-semibold text-blue-400">
+                                  Sold by GadgetHub
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <p className="mt-3 text-sm font-semibold text-[#60a5fa]">
                         Total: Rs. {order.total_amount.toLocaleString()}
                       </p>
                     </div>
@@ -298,11 +326,17 @@ function AdminDashboard() {
   )
 }
 
-function SummaryCard({ label, value }) {
+function SummaryCard({ label, value, accent }) {
+  const accentClass =
+    accent === 'blue'
+      ? 'text-blue-400'
+      : accent === 'purple'
+      ? 'text-purple-400'
+      : 'text-white'
   return (
     <div className="rounded-2xl border border-slate-800/80 bg-[#0c1322]/90 p-5 backdrop-blur-xl">
       <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-white">{value}</p>
+      <p className={`mt-1 text-2xl font-bold ${accentClass}`}>{value}</p>
     </div>
   )
 }
