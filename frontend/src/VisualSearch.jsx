@@ -159,7 +159,7 @@ function VisualSearch() {
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <span className="flex flex-shrink-0 items-center gap-2 text-sm font-bold">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-amber-500 text-white text-xs">N</span>
-            Nexora
+            GadgetHub
           </span>
 
           <div className="flex flex-wrap items-center gap-3">

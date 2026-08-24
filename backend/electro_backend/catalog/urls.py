@@ -26,8 +26,8 @@ urlpatterns = [
     path('products/log-view/', views.log_product_view, name='log-product-view'),
     path('products/visual-search/', views.visual_search, name='visual-search'),
     path('products/semantic-search/', views.semantic_search, name='semantic-search'),
-    path('khalti/initiate/', views.khalti_initiate, name='khalti-initiate'),
-    path('khalti/verify/', views.khalti_verify, name='khalti-verify'),
+    path('khalti/initiate/', initiate_payment, name='khalti-initiate'),
+    path('khalti/verify/', verify_payment, name='khalti-verify'),
     path('products/<int:product_id>/toggle-favorite/', views.toggle_favorite, name='toggle-favorite'),
     path('favorites/', views.list_favorites, name='list-favorites'),
 ]

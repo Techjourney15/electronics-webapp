@@ -87,18 +87,30 @@ function ProductDetail() {
       setIsAdding(false);
     }
   };
-  const handleBuyNow = async () => {
+ const handleBuyNow = async () => {
     setIsBuyingNow(true);
     setCartMessage("");
     try {
+      // Step 1: add the product to cart
       await axios.post(
         `${API}/catalog/cart/add/`,
         { product_id: Number(id), quantity: 1 },
         authHeader
       );
+
+      // Step 2: convert the cart into a real Order (this is the missing step)
+      const checkoutRes = await axios.post(
+        `${API}/catalog/checkout/`,
+        {},
+        authHeader
+      );
+      const orderId = checkoutRes.data.order_id;
+
+      // Step 3: now initiate Khalti payment for that specific order
       const res = await axios.post(
         `${API}/catalog/khalti/initiate/`,
         {
+          order_id: orderId,
           return_url: `${window.location.origin}/payment-callback`,
           website_url: window.location.origin,
         },

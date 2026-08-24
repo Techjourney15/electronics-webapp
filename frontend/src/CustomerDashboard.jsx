@@ -27,6 +27,7 @@ function CustomerDashboard() {
   const [cart, setCart] = useState(null)
   const [cartLoading, setCartLoading] = useState(false)
   const [cartError, setCartError] = useState('')
+  const [checkingOut, setCheckingOut] = useState(false)
 
   const [orders, setOrders] = useState([])
   const [ordersLoading, setOrdersLoading] = useState(false)
@@ -118,6 +119,30 @@ function CustomerDashboard() {
       )
       .then((res) => setCart(res.data))
       .catch(() => setCartError('Could not update quantity.'))
+  }
+
+  // NEW: creates a real Order from the cart, then sends the user to the
+  // payment method selection page with that order's id + total.
+  // NOTE: confirm '/payment' matches the actual route in App.jsx for
+  // your Payment.jsx component — adjust this string if it's different.
+  const handleProceedToPayment = () => {
+    setCartError('')
+    setCheckingOut(true)
+    axios
+      .post(`${API_BASE}/catalog/checkout/`, {}, { headers: authHeaders() })
+      .then((res) => {
+        navigate('/payment', {
+          state: {
+            orderId: res.data.order_id,
+            totalAmount: res.data.total_amount,
+            source: 'cart',
+          },
+        })
+      })
+      .catch((err) => {
+        setCartError(err.response?.data?.error || 'Could not proceed to checkout.')
+        setCheckingOut(false)
+      })
   }
 
   const handleLogout = () => {
@@ -431,10 +456,11 @@ function CustomerDashboard() {
                       Total: Rs. {cart.total.toLocaleString()}
                     </p>
                     <button
-                      onClick={() => navigate('/checkout')}
-                      className="rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 shadow-lg shadow-blue-600/25"
+                      onClick={handleProceedToPayment}
+                      disabled={checkingOut}
+                      className="rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 shadow-lg shadow-blue-600/25 disabled:opacity-60"
                     >
-                      💳 Proceed to Payment
+                      {checkingOut ? 'Processing…' : '💳 Proceed to Payment'}
                     </button>
                   </div>
                 </div>

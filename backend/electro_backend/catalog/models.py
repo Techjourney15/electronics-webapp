@@ -84,14 +84,21 @@ class Order(models.Model):
         ('failed', 'Failed'),
         ('cancelled', 'Cancelled'),
     )
+    PAYMENT_METHOD_CHOICES = (
+        ('khalti', 'Khalti'),
+        ('cod', 'Cash on Delivery'),
+    )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
     total_amount = models.IntegerField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     khalti_pidx = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return f"Order #{self.id} ({self.status})"
+
+    
 
 
 class OrderItem(models.Model):
@@ -100,6 +107,10 @@ class OrderItem(models.Model):
     product_name_snapshot = models.CharField(max_length=255)
     price_at_purchase = models.IntegerField()
     quantity = models.PositiveIntegerField()
+    seller_name_snapshot = models.CharField(max_length=150, blank=True)
+    seller_business_snapshot = models.CharField(max_length=150, blank=True)
+    seller_email_snapshot = models.EmailField(blank=True)
+    seller_contact_snapshot = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return f"{self.quantity} x {self.product_name_snapshot}"

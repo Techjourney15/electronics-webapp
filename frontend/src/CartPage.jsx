@@ -18,11 +18,11 @@ export default function CartPage() {
     }
 
     axios
-      .get(`${API}/cart/`, {
+      .get(`${API}/catalog/cart/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        setCartItems(res.data || []);
+        setCartItems(res.data.items || []);
         setLoading(false);
       })
       .catch(() => {
