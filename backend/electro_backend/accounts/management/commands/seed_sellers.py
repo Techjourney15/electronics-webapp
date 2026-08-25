@@ -88,7 +88,6 @@ class Command(BaseCommand):
                         'business_name': data['business_name'],
                         'contact_info': random_np_phone(),
                         'verification_status': 'approved',
-                        'is_dummy': True,
                     }
                 )
                 sellers.append(seller)

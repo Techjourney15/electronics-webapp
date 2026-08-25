@@ -131,16 +131,22 @@ function CustomerDashboard() {
     axios
       .post(`${API_BASE}/catalog/checkout/`, {}, { headers: authHeaders() })
       .then((res) => {
-        navigate('/payment', {
-          state: {
-            orderId: res.data.order_id,
-            totalAmount: res.data.total_amount,
-            source: 'cart',
+        // go straight to Khalti, same as Buy Now — skip the method-selection page
+        return axios.post(
+          `${API_BASE}/catalog/khalti/initiate/`,
+          {
+            order_id: res.data.order_id,
+            return_url: `${window.location.origin}/payment-callback`,
+            website_url: window.location.origin,
           },
-        })
+          { headers: authHeaders() }
+        )
+      })
+      .then((res) => {
+        window.location.href = res.data.payment_url
       })
       .catch((err) => {
-        setCartError(err.response?.data?.error || 'Could not proceed to checkout.')
+        setCartError(err.response?.data?.error || 'Could not proceed to payment.')
         setCheckingOut(false)
       })
   }
@@ -167,40 +173,16 @@ function CustomerDashboard() {
     )
   }
 
-  const tabs = [
-    { id: 'profile', label: 'Account' },
-    { id: 'preferences', label: 'Preferences' },
-    { id: 'cart', label: 'Cart' },
-    { id: 'orders', label: 'Orders' },
-  ]
-
   return (
     <main className="min-h-screen bg-[#0A0D18] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(37,99,235,0.12),rgba(255,255,255,0))]">
       <NavBar />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-8">
         <div>
-          <p className="text-xs font-semibold tracking-widest bg-gradient-to-r from-[#2563EB] via-[#F59E0B] to-[#FF5500] bg-clip-text text-transparent">NEXORA</p>
+          <p className="text-xs font-semibold tracking-widest bg-gradient-to-r from-[#2563EB] via-[#F59E0B] to-[#FF5500] bg-clip-text text-transparent">GadgetHub</p>
           <h1 className="mt-1 text-3xl font-bold text-white">
             Welcome, {profile.first_name || profile.username}
           </h1>
-        </div>
-
-        {/* Tabs */}
-        <div className="mt-8 inline-flex rounded-full border border-slate-700/60 bg-[#111827] p-1.5 shadow-inner">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`rounded-full px-5 py-2 text-sm font-semibold transition-all ${
-                activeTab === tab.id
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
         </div>
 
         {/* Tab content */}
@@ -460,7 +442,7 @@ function CustomerDashboard() {
                       disabled={checkingOut}
                       className="rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 shadow-lg shadow-blue-600/25 disabled:opacity-60"
                     >
-                      {checkingOut ? 'Processing…' : '💳 Proceed to Payment'}
+                      {checkingOut ? 'Processing…' : ' Proceed to Payment'}
                     </button>
                   </div>
                 </div>

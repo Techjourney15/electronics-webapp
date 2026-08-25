@@ -24,6 +24,12 @@ AUTH_USER_MODEL = 'accounts.User'
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+# Khalti payment gateway (sandbox by default). Add your test secret key to
+# your local .env as KHALTI_SECRET_KEY=<key> — without it, any payment
+# request will crash with a 500 error since this was previously undefined.
+KHALTI_SECRET_KEY = config('KHALTI_SECRET_KEY', default='')
+KHALTI_BASE_URL = config('KHALTI_BASE_URL', default='https://dev.khalti.com/api/v2')
+
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 

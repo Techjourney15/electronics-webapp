@@ -120,12 +120,14 @@ function SellerDashboard() {
   };
 
   const searchUnclaimed = () => {
-    const categoryParam = browseCategory ? `&category=${encodeURIComponent(browseCategory)}` : "";
+    const params = new URLSearchParams();
+    if (browseQuery.trim()) params.set("q", browseQuery.trim());
+    if (browseCategory) params.set("category", browseCategory);
+
     axios
-      .get(`${API}/catalog/products/semantic-search/?q=${encodeURIComponent(browseQuery)}${categoryParam}`)
+      .get(`${API}/catalog/products/unclaimed/?${params.toString()}`, authHeader)
       .then((res) => {
-        const results = res.data.results.filter((p) => !p.seller);
-        setBrowseResults(results);
+        setBrowseResults(res.data);
       })
       .catch(() => setError("Could not search products."));
   };
@@ -172,7 +174,7 @@ function SellerDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-[#2563EB] via-[#F59E0B] to-[#FF5500] bg-clip-text text-transparent">
-            Nexora 
+            GadgetHub Seller Dashboard
           </h1>
           <button
             onClick={handleLogout}

@@ -234,9 +234,9 @@ export default function NavBar() {
 
           {/* Cart */}
           <button
-            onClick={() => navigate("/cart")}
+            onClick={() => navigate("/customer-dashboard?tab=cart")}
             className={`relative py-1 transition-colors ${
-              isActive("/cart")
+              isActive("/cart") || isActive("/customer-dashboard")
                 ? "font-bold text-blue-500"
                 : "text-slate-300 hover:text-white"
             }`}

@@ -543,7 +543,7 @@ def update_cart_item(request, item_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_orders(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at').prefetch_related('items')
+    orders = Order.objects.filter(user=request.user).order_by('-created_at').prefetch_related('items__product')
 
     result = []
     for order in orders:
@@ -557,6 +557,8 @@ def my_orders(request):
                     'product_name': i.product_name_snapshot,
                     'price_at_purchase': i.price_at_purchase,
                     'quantity': i.quantity,
+                    'seller_name': i.seller_business_snapshot or i.seller_name_snapshot,
+                    'product_image': i.product.image.url if i.product and i.product.image else None,
                 }
                 for i in order.items.all()
             ],
@@ -588,12 +590,18 @@ def checkout(request):
                 {'error': f'Not enough stock for {item.product.product_name}'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        seller = item.product.seller
         OrderItem.objects.create(
             order=order,
             product=item.product,
             product_name_snapshot=item.product.product_name,
             price_at_purchase=item.product.price_npr,
             quantity=item.quantity,
+            seller_business_snapshot=seller.business_name if seller else '',
+            seller_name_snapshot=(seller.user.first_name or seller.user.username) if seller and seller.user else '',
+            seller_email_snapshot=seller.user.email if seller and seller.user else '',
+            seller_contact_snapshot=seller.contact_info if seller else '',
         )
         item.product.stock_quantity -= item.quantity
         item.product.save()

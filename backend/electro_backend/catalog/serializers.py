@@ -50,9 +50,24 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    product_image = serializers.SerializerMethodField()
+
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'product_name_snapshot', 'price_at_purchase', 'quantity']
+        fields = [
+            'id', 'product', 'product_name_snapshot',
+            'price_at_purchase', 'quantity',
+            'seller_name_snapshot', 'seller_business_snapshot',
+            'product_image',
+        ]
+
+    def get_product_image(self, obj):
+        # product can be null (SET_NULL on delete), so guard for that
+        if obj.product and getattr(obj.product, 'image', None):
+            request = self.context.get('request')
+            url = obj.product.image.url
+            return request.build_absolute_uri(url) if request else url
+        return None
 
 
 class OrderSerializer(serializers.ModelSerializer):

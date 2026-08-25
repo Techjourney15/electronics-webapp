@@ -34,31 +34,27 @@ function RecommendationCard({ product, onClick }) {
         )}
       </div>
 
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">
-        {product.sub_category}
-        {product.seller && (
-          <>
-            {" · "}
-            <span
-              onClick={() => navigate(`/seller/${product.seller}`)}
-              className="cursor-pointer underline decoration-blue-400/40 underline-offset-2 hover:text-blue-300"
-            >
-              {product.seller_name}
-            </span>
-          </>
-        )}
-      </p>
+      <div className="p-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">
+          {product.sub_category}
+        </p>
+
+        <p className="mt-1 line-clamp-2 text-sm font-semibold text-white">
+          {product.product_name}
+        </p>
 
         <p className="mt-1 text-sm font-semibold text-amber-400">
-          Rs. {product.price_npr}
+          Rs. {product.price_npr?.toLocaleString()}
         </p>
       </div>
+    </div>
   );
 }
 
 function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [product, setProduct] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,61 +64,60 @@ function ProductDetail() {
   const [isBuyingNow, setIsBuyingNow] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [isFavorited, setIsFavorited] = useState(false);
-  const token = localStorage.getItem("access_token");
-  const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
+  const token = localStorage.getItem("access_token");
+  const authHeader = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+
+  // ================= ADD TO CART =================
   const handleAddToCart = async () => {
     setIsAdding(true);
     setCartMessage("");
+
     try {
       await axios.post(
         `${API}/catalog/cart/add/`,
         { product_id: Number(id), quantity: 1 },
         authHeader
       );
-      setCartMessage("Added to cart successfully.");
+
+      setCartMessage(" Added to cart successfully.");
     } catch (err) {
-      setCartMessage(err.response?.data?.error || "Could not add to cart.");
+      setCartMessage(
+        err.response?.data?.error || "Could not add to cart."
+      );
     } finally {
       setIsAdding(false);
     }
   };
- const handleBuyNow = async () => {
-    setIsBuyingNow(true);
-    setCartMessage("");
+
+  // ================= BUY NOW =================
+  const handleBuyNow = async () => {
     try {
-      // Step 1: add the product to cart
-      await axios.post(
-        `${API}/catalog/cart/add/`,
-        { product_id: Number(id), quantity: 1 },
-        authHeader
-      );
+      setIsBuyingNow(true);
 
-      // Step 2: convert the cart into a real Order (this is the missing step)
-      const checkoutRes = await axios.post(
-        `${API}/catalog/checkout/`,
+      const token = localStorage.getItem("access_token");
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/payment/khalti/initiate/",
         {},
-        authHeader
-      );
-      const orderId = checkoutRes.data.order_id;
-
-      // Step 3: now initiate Khalti payment for that specific order
-      const res = await axios.post(
-        `${API}/catalog/khalti/initiate/`,
         {
-          order_id: orderId,
-          return_url: `${window.location.origin}/payment-callback`,
-          website_url: window.location.origin,
-        },
-        authHeader
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      window.location.href = res.data.payment_url;
-    } catch (err) {
-      setCartMessage(err.response?.data?.error || "Could not proceed to payment.");
+
+      window.location.href = response.data.payment_url;
+    } catch (error) {
+      console.error("Khalti payment error:", error);
+      alert("Unable to initiate payment.");
       setIsBuyingNow(false);
     }
   };
 
+  // ================= FAVORITE =================
   const toggleFavorite = async () => {
     try {
       const res = await axios.post(
@@ -130,42 +125,75 @@ function ProductDetail() {
         {},
         authHeader
       );
+
       setIsFavorited(res.data.favorited);
     } catch (err) {
-      console.error("toggle favorite failed:", err.response?.status, err.response?.data);
+      console.error(
+        "Toggle favorite failed:",
+        err.response?.status,
+        err.response?.data
+      );
     }
   };
 
+  // ================= LOAD DATA =================
   useEffect(() => {
     setLoading(true);
 
+    // Product details
     axios
       .get(`${API}/catalog/products/${id}/`, authHeader)
       .then((res) => setProduct(res.data))
       .catch(() => setError("Could not load this product."))
       .finally(() => setLoading(false));
 
+    // Recommendations
     axios
-      .get(`${API}/catalog/products/${id}/recommendations/`, authHeader)
-      .then((res) => setRecommendations(res.data.recommendations || []))
+      .get(
+        `${API}/catalog/products/${id}/recommendations/`,
+        authHeader
+      )
+      .then((res) =>
+        setRecommendations(res.data.recommendations || [])
+      )
       .catch(() => {});
 
+    // User role
     axios
       .get(`${API}/auth/my-profile/`, authHeader)
       .then((res) => setUserRole(res.data.role))
       .catch(() => {});
 
+    // Check favorite status
     axios
       .get(`${API}/catalog/favorites/`, authHeader)
-      .then((res) => setIsFavorited(res.data.some((p) => p.id === Number(id))))
+      .then((res) => {
+        setIsFavorited(
+          res.data.some((p) => p.id === Number(id))
+        );
+      })
       .catch(() => {});
 
+    // Log product view
     axios
-      .post(`${API}/catalog/products/log-view/`, { product_id: Number(id) }, authHeader)
-      .then((res) => console.log("log-view success:", res.data))
-      .catch((err) => console.error("log-view failed:", err.response?.status, err.response?.data));
+      .post(
+        `${API}/catalog/products/log-view/`,
+        { product_id: Number(id) },
+        authHeader
+      )
+      .then((res) =>
+        console.log("log-view success:", res.data)
+      )
+      .catch((err) =>
+        console.error(
+          "log-view failed:",
+          err.response?.status,
+          err.response?.data
+        )
+      );
   }, [id]);
 
+  // ================= LOADING =================
   if (loading) {
     return (
       <main className="min-h-screen bg-[#0A0D18] px-4 py-10 text-slate-400 sm:px-8">
@@ -174,6 +202,7 @@ function ProductDetail() {
     );
   }
 
+  // ================= ERROR =================
   if (error || !product) {
     return (
       <main className="min-h-screen bg-[#0A0D18] px-4 py-10 sm:px-8">
@@ -190,6 +219,7 @@ function ProductDetail() {
       : `${MEDIA_BASE}${product.image}`
     : null;
 
+  // ================= PRODUCT SPECS =================
   const specs = [
     ["Model", product.model],
     ["Processor", product.processor],
@@ -204,79 +234,88 @@ function ProductDetail() {
         `${product.display_size_inches}" ${product.display_type || ""}`,
     ],
     ["Resolution", product.display_resolution],
-    ["Refresh Rate", product.refresh_rate_hz && `${product.refresh_rate_hz} Hz`],
-    ["Rear Camera", product.rear_camera_mp && `${product.rear_camera_mp} MP`],
-    ["Front Camera", product.front_camera_mp && `${product.front_camera_mp} MP`],
-    ["Fast Charging", product.fast_charging_watts && `${product.fast_charging_watts} W`],
-    ["Weight", product.weight_grams && `${product.weight_grams} g`],
+    [
+      "Refresh Rate",
+      product.refresh_rate_hz &&
+        `${product.refresh_rate_hz} Hz`,
+    ],
+    [
+      "Rear Camera",
+      product.rear_camera_mp &&
+        `${product.rear_camera_mp} MP`,
+    ],
+    [
+      "Front Camera",
+      product.front_camera_mp &&
+        `${product.front_camera_mp} MP`,
+    ],
+    [
+      "Fast Charging",
+      product.fast_charging_watts &&
+        `${product.fast_charging_watts} W`,
+    ],
+    [
+      "Weight",
+      product.weight_grams &&
+        `${product.weight_grams} g`,
+    ],
     ["Color", product.color],
-    ["Warranty", product.warranty_years && `${product.warranty_years} year(s)`],
-  ].filter(([, value]) => {
-    if (value === null || value === undefined || value === false || value === 0) return false;
-    const text = String(value).trim().toLowerCase();
-    const placeholders = ["", "nan", "none", "null", "n/a", "na", "-", "undefined"];
-    if (placeholders.includes(text)) return false;
-    // Catches "0", "0 GB", "0.00 MP", etc. — a leading numeric value of
-    // zero means the field isn't applicable to this product, not a
-    // real spec worth showing.
-    const leadingNumber = text.match(/^-?\d+(\.\d+)?/);
-    if (leadingNumber && parseFloat(leadingNumber[0]) === 0) return false;
-    return true;
-  });
+    [
+      "Warranty",
+      product.warranty_years &&
+        `${product.warranty_years} year(s)`,
+    ],
+  ].filter(([, value]) => value);
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#0A0D18] text-white">
-      {/* Dark Grid Background Pattern */}
+
+      {/* Dark Grid Background */}
       <div
         className="
-        absolute
-        inset-0
-        opacity-15
-        [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)]
-        [background-size:60px_60px]
+          absolute inset-0 opacity-15
+          [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)]
+          [background-size:60px_60px]
         "
       />
 
-      {/* Top Right Blue Ambient Glow */}
+      {/* Top Right Glow */}
       <div
         className="
-        absolute
-        top-[-100px]
-        right-[-100px]
-        h-[650px]
-        w-[650px]
-        rounded-full
-        bg-blue-600/25
-        blur-[170px]
-        pointer-events-none
+          pointer-events-none absolute top-[-100px] right-[-100px]
+          h-[650px] w-[650px] rounded-full
+          bg-blue-600/25 blur-[170px]
         "
       />
 
-      {/* Bottom Left Amber/Gold Ambient Glow */}
+      {/* Bottom Left Glow */}
       <div
         className="
-        absolute
-        bottom-[-80px]
-        left-[-120px]
-        h-[500px]
-        w-[500px]
-        rounded-full
-        bg-amber-600/20
-        blur-[160px]
-        pointer-events-none
+          pointer-events-none absolute bottom-[-80px] left-[-120px]
+          h-[500px] w-[500px] rounded-full
+          bg-amber-600/20 blur-[160px]
         "
       />
 
       <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-8">
+
+        {/* Back Button */}
         <button
-          onClick={() => navigate(userRole === "seller" ? "/seller-dashboard" : "/homepage")}
+          onClick={() =>
+            navigate(
+              userRole === "seller"
+                ? "/seller-dashboard"
+                : "/homepage"
+            )
+          }
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 transition hover:text-blue-300"
         >
           ← Home
         </button>
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-          {/* Product Image Card */}
+
+          {/* Product Image */}
           <div className="aspect-square w-full overflow-hidden rounded-[24px] border border-slate-700/60 bg-[#111827]/85 backdrop-blur-2xl shadow-[0_0_50px_rgba(30,58,138,0.2)]">
             {imageUrl ? (
               <img
@@ -294,10 +333,11 @@ function ProductDetail() {
             )}
           </div>
 
-          {/* Product Details Section */}
+          {/* Product Details */}
           <div className="flex flex-col justify-center">
+
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">
-              {product.sub_category} 
+              {product.sub_category}
             </p>
 
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
@@ -308,28 +348,52 @@ function ProductDetail() {
               Rs. {product.price_npr?.toLocaleString()}
             </p>
 
+            {/* Stock Status */}
             <p className="mt-1 text-sm text-slate-400">
               {product.stock_quantity > 0 ? (
-                <span className="text-emerald-400 font-medium">
+                <span className="font-medium text-emerald-400">
                   In stock ({product.stock_quantity} available)
                 </span>
               ) : (
-                <span className="text-red-400 font-medium">Out of stock</span>
+                <span className="font-medium text-red-400">
+                  Out of stock
+                </span>
               )}
             </p>
 
+            {/* Description */}
             <p className="mt-6 text-sm leading-6 text-slate-300">
               {product.description}
             </p>
-          
 
             {/* Specifications Grid */}
             <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 rounded-2xl border border-slate-700/50 bg-[#1A1D2E]/50 p-5 backdrop-blur-lg">
+
+              {/* Seller Information - Kept exactly as your design */}
+              {product.seller && (
+                <div
+                  onClick={() =>
+                    navigate(`/seller/${product.seller}`)
+                  }
+                  className="cursor-pointer"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-400">
+                    Sold by
+                  </p>
+
+                  <p className="mt-0.5 text-sm font-medium text-slate-200 hover:text-blue-300 hover:underline">
+                    {product.seller_name}
+                  </p>
+                </div>
+              )}
+
+              {/* Specifications */}
               {specs.map(([label, value]) => (
                 <div key={label}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-400">
                     {label}
                   </p>
+
                   <p className="mt-0.5 text-sm font-medium text-slate-200">
                     {value}
                   </p>
@@ -337,13 +401,19 @@ function ProductDetail() {
               ))}
             </div>
 
-            {/* Action Buttons */}
+            {/* ================= ACTION BUTTONS ================= */}
             {product.stock_quantity > 0 && (
-              <div className="mt-8 flex items-center gap-3 border-t border-slate-800 pt-6">
+              <div className="mt-8 flex flex-col gap-3 border-t border-slate-800 pt-6 sm:flex-row">
+
+                {/* ❤️ FAVORITE BUTTON */}
                 <button
                   onClick={toggleFavorite}
-                  aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
-                  className={`flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-full border transition ${
+                  aria-label={
+                    isFavorited
+                      ? "Remove from favorites"
+                      : "Add to favorites"
+                  }
+                  className={`flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full border transition ${
                     isFavorited
                       ? "border-red-500 bg-red-500/10 text-red-400"
                       : "border-slate-700 bg-[#1A1D2E] text-slate-300 hover:border-red-500 hover:text-red-400"
@@ -365,40 +435,27 @@ function ProductDetail() {
                   </svg>
                 </button>
 
+                {/* Add to Cart */}
                 <button
                   onClick={handleAddToCart}
                   disabled={isAdding || isBuyingNow}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-full border border-slate-700 bg-[#1A1D2E] px-6 py-3 text-sm font-semibold text-slate-100 transition hover:border-blue-500 hover:text-blue-400 disabled:opacity-60 sm:flex-none"
+                  className="rounded-full border border-blue-500 bg-blue-600/10 px-6 py-3 text-sm font-semibold text-blue-400 transition hover:bg-blue-600 hover:text-white disabled:opacity-60"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.8}
-                    className="h-[18px] w-[18px]"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.25 3h1.386c.51 0 .955.343 1.087.836l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.98-4.716 2.545-7.221a.75.75 0 00-.729-.914H5.106M7.5 14.25L5.106 5.25M7.5 14.25l-1.719 4.32a.75.75 0 00.694 1.03h9.5"
-                    />
-                    <circle cx="9" cy="20.25" r="1" fill="currentColor" stroke="none" />
-                    <circle cx="17.25" cy="20.25" r="1" fill="currentColor" stroke="none" />
-                  </svg>
-                  {isAdding ? "Adding…" : "Add to Cart"}
+                  {isAdding ? "Adding…" : "🛒 Add to Cart"}
                 </button>
 
+                {/* Buy Now */}
                 <button
-                  onClick={handleBuyNow}
+                  onClick={() => navigate("/checkout")}
                   disabled={isAdding || isBuyingNow}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] disabled:opacity-60 sm:flex-none"
+                  className="rounded-xl bg-blue-600 px-6 py-4 font-semibold text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isBuyingNow ? "Processing…" : "Buy Now"}
+                  {isBuyingNow ? "Processing..." : "Buy Now"}
                 </button>
               </div>
             )}
 
+            {/* Cart / Action Message */}
             {cartMessage && (
               <p className="mt-3 text-sm font-medium text-blue-400">
                 {cartMessage}
@@ -407,12 +464,13 @@ function ProductDetail() {
           </div>
         </div>
 
-        {/* Recommendations Section */}
+        {/* Recommendations */}
         {recommendations.length > 0 && (
           <div className="mt-16 border-t border-slate-800 pt-10">
             <h2 className="mb-6 text-lg font-bold tracking-wide text-white">
               Similar products
             </h2>
+
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
               {recommendations.map((r) => (
                 <RecommendationCard
@@ -428,6 +486,5 @@ function ProductDetail() {
     </main>
   );
 }
-
 
 export default ProductDetail;
