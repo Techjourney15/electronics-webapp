@@ -1,7 +1,4 @@
-.env
-notepad .gitignore
-.venv/
-venv/
-backend/electro_backend/recommender/similarity_matrix.pkl
+recommender/similarity_matrix.pkl
+recommender/similarity_matrix.npy
 __pycache__/
 *.pyc
