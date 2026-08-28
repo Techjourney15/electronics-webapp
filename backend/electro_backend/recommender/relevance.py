@@ -1,33 +1,3 @@
-"""
-Shared Relevance Definition
-============================
-
-Single source of truth for "what counts as a relevant/similar product
-pair" in this project. Both recommendation_pipeline.py (weight search)
-and sensitivity_analysis.py (robustness check) import build_proxy_relevance
-from HERE, instead of each defining their own rule. That consistency is
-the whole point: it removes the risk of the search and the evaluation
-silently disagreeing on what "good" means.
-
-Rule (majority vote): a pair is considered relevant if they are in the
-SAME CATEGORY, AND at least 2 of these 3 additional signals agree:
-  - price within `price_tol` of each other (relative difference)
-  - spec vectors close together (normalized L2 distance below `spec_tol`)
-  - description keyword overlap >= `keyword_min` (top-8 TF-IDF terms)
-
-Why this instead of "same category only":
-  Same-category-only is circular -- one of the three input vectors IS
-  the category (one-hot encoded), so testing "which weights best predict
-  the category label" trivially rewards leaning on the category vector.
-  Requiring 2-of-3 additional agreement makes the label test something
-  the model actually has to work for, not something already encoded in
-  one of its own inputs.
-
-This is a domain/business-rule proxy, not ground truth from real user
-behavior (clicks/purchases). That's a standard, documented tradeoff for
-offline recommender evaluation without production interaction data --
-state it as such in defense rather than presenting it as verified truth.
-"""
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer

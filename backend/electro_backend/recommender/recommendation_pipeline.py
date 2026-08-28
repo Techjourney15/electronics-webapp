@@ -26,20 +26,6 @@ Sort by similarity score
         v
 Top 5 recommendations returned (JSON)
 
-CHANGE FROM PREVIOUS VERSION:
-------------------------------
-search_weights() now scores candidate weight combos against the shared
-majority-vote relevance rule in relevance.py (same category AND >=2 of
-price/spec/keyword closeness), instead of a plain same-category proxy.
-The plain same-category proxy was circular: the category vector is one
-of the three vectors being weighted, so "which weights best predict the
-category label" trivially rewarded leaning on the category vector. The
-majority-vote rule requires the model to also track price/spec/keyword
-agreement, which the category vector alone cannot supply.
-
-sensitivity_analysis.py imports the SAME relevance.build_proxy_relevance
-function, so the weight search and the robustness check are evaluated
-against one consistent definition of relevance throughout the project.
 """
 
 import json
@@ -52,13 +38,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from relevance import build_proxy_relevance
 
-# ----------------------------------------------------------------------
-# STEP 0: "Product DataBase (MySQL)" -- here backed by the real
-# electronics_dataset_with_images.csv (10,000 rows: 6,000 smartphones,
-# 4,000 laptops). In production this block is a SQL query
-# (SELECT * FROM products) triggered by Refresh (Ctrl+R) / a cron job;
-# the CSV plays that role for this script.
-# ----------------------------------------------------------------------
+
 CSV_PATH = "./electronics_dataset_with_images.csv"
 
 ID_COL = "product_id"
@@ -82,9 +62,9 @@ def strip_brand_tokens(description: str, brand: str, product_name: str) -> str:
     text = re.sub(rf'\b{re.escape(brand.lower())}\b', '', text)
     return re.sub(r'\s+', ' ', text).strip()
 
-# ----------------------------------------------------------------------
+
 # PIPELINE 1: TF-IDF on text -> Text Vector
-# ----------------------------------------------------------------------
+
 def build_text_vector(df: pd.DataFrame):
     df['text_for_tfidf'] = df.apply(
         lambda row: strip_brand_tokens(row['description'], row['brand'], row['product_name']),
@@ -94,27 +74,27 @@ def build_text_vector(df: pd.DataFrame):
     text_vec = tfidf.fit_transform(df['text_for_tfidf']).toarray().astype(np.float32)
     return text_vec
 
-# ----------------------------------------------------------------------
+
 # PIPELINE 2: One-hot encoding -> Category Vector
-# ----------------------------------------------------------------------
+
 def build_category_vector(df: pd.DataFrame):
     encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
     cat_vec = encoder.fit_transform(df[CAT_COLS]).astype(np.float32)
     return cat_vec
 
 
-# ----------------------------------------------------------------------
+
 # PIPELINE 3: Min-Max Scaling -> Spec Vector
-# ----------------------------------------------------------------------
+
 def build_spec_vector(df: pd.DataFrame):
     scaler = MinMaxScaler()
     spec_vec = scaler.fit_transform(df[SPEC_COLS]).astype(np.float32)
     return spec_vec
 
 
-# ----------------------------------------------------------------------
+
 # WEIGHT DISCOVERY
-# ----------------------------------------------------------------------
+
 def search_weights(text_vec, cat_vec, spec_vec, df: pd.DataFrame,
                     sample_size: int = 400, random_state: int = 42):
     """
@@ -162,25 +142,24 @@ def search_weights(text_vec, cat_vec, spec_vec, df: pd.DataFrame,
     return best_weights, best_score
 
 
-# ----------------------------------------------------------------------
 # WEIGHTED CONCATENATION -> FINAL PRODUCT VECTOR (cached in memory)
-# ----------------------------------------------------------------------
+
 def build_final_vectors(text_vec, cat_vec, spec_vec, weights):
     w_text, w_cat, w_spec = weights
     final_vector = np.hstack([text_vec * w_text, cat_vec * w_cat, spec_vec * w_spec])
     return final_vector
 
 
-# ----------------------------------------------------------------------
+
 # COSINE SIMILARITY computed ONCE over the whole cache -> similarity matrix
-# ----------------------------------------------------------------------
+
 def build_similarity_matrix(final_vectors):
     return cosine_similarity(final_vectors)
 
 
-# ----------------------------------------------------------------------
+
 # "User views a product" -> Top 5 recommendations -> JSON
-# ----------------------------------------------------------------------
+
 def recommend_top5(df: pd.DataFrame, sim_matrix: np.ndarray, product_id: str, k: int = 5):
     idx = df.index[df[ID_COL] == product_id][0]
     scores = list(enumerate(sim_matrix[idx]))
@@ -201,9 +180,8 @@ def recommend_top5(df: pd.DataFrame, sim_matrix: np.ndarray, product_id: str, k:
     return {"viewed_product": viewed_product, "recommendations": recommendations}
 
 
-# ----------------------------------------------------------------------
-# MAIN
-# ----------------------------------------------------------------------
+
+
 def main():
     df = load_product_database()
     print(f"Loaded {len(df)} products "

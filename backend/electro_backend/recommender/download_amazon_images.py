@@ -4,7 +4,7 @@ import os
 
 CSV_PATH = "amazon_products.csv"
 OUTPUT_DIR = "amazon_images"
-SAMPLE_SIZE = 2000  # since you have time, let's go bigger
+SAMPLE_SIZE = 2000  
 
 df = pd.read_csv(CSV_PATH)
 sampled = df.sample(min(SAMPLE_SIZE, len(df)), random_state=42)
@@ -26,7 +26,7 @@ for idx, row in sampled.iterrows():
             if len(downloaded) % 50 == 0:
                 print(f"Downloaded {len(downloaded)} so far...")
     except Exception as e:
-        pass  # skip failed downloads silently, keep going
+        pass  
 
 result_df = pd.DataFrame(downloaded)
 result_df.to_csv("amazon_images_downloaded.csv", index=False)

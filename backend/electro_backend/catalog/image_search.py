@@ -2,9 +2,7 @@ import numpy as np
 import cv2
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
 
-# include_top=True -- uses the actual classification layer (1000 ImageNet
-# classes), so feature vectors reflect what the object IS, not just generic
-# color/texture patterns.
+
 _MODEL = MobileNetV2(weights='imagenet', include_top=False, pooling='avg')
 
 _FACE_CASCADE = cv2.CascadeClassifier(

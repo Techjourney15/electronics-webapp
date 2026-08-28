@@ -1,4 +1,4 @@
-// api/axiosClient.js
+
 import axios from 'axios'
 
 const API_BASE = 'http://127.0.0.1:8000/api'
@@ -45,7 +45,7 @@ axiosClient.interceptors.response.use(
       }
 
       if (isRefreshing) {
-        // queue this request until the in-flight refresh finishes
+        
         return new Promise((resolve, reject) => {
           refreshQueue.push((newToken) => {
             if (!newToken) return reject(error)

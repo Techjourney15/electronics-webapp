@@ -3,9 +3,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const API = "http://127.0.0.1:8000/api";
-const MEDIA_BASE = "http://127.0.0.1:8000"; // image ko full url banauna
+const MEDIA_BASE = "http://127.0.0.1:8000"; 
 
-// euta product ko card — homepage ma grid ma dekhincha
+
 function ProductCard({ product, onClick }) {
   const imageUrl = product.image
     ? (product.image.startsWith("http") ? product.image : `${MEDIA_BASE}${product.image}`)
@@ -51,15 +51,15 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showAccountMenu, setShowAccountMenu] = useState(false); // account dropdown khula ki band
-  const [userInitials, setUserInitials] = useState("U"); // avatar ma dekhaune initials
-  const [infoModal, setInfoModal] = useState(null); // 'help' | 'policies' | 'feedback' | null — kun popup khula cha
+  const [showAccountMenu, setShowAccountMenu] = useState(false); 
+  const [userInitials, setUserInitials] = useState("U"); 
+  const [infoModal, setInfoModal] = useState(null); 
 
   const accountMenuRef = useRef(null);
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
 
-  // dropdown ko bahira click garda band garne
+  
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (accountMenuRef.current && !accountMenuRef.current.contains(e.target)) {
@@ -72,7 +72,7 @@ function Home() {
 
   const token = localStorage.getItem("access_token");
 
-  // search bar submit garda search results page ma pathaune
+ 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -80,7 +80,7 @@ function Home() {
     }
   };
 
-  // page load huda ek pataka chalne — recommended products ra profile fetch garne
+  
   useEffect(() => {
     axios
       .get(`${API}/catalog/products/homepage/`, {
@@ -90,7 +90,7 @@ function Home() {
       .catch(() => setError("Could not load recommendations right now."))
       .finally(() => setLoading(false));
 
-    // avatar ko lagi user ko naam bata initials nikalne
+    
     axios
       .get(`${API}/auth/my-profile/`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -102,13 +102,13 @@ function Home() {
       .catch(() => {});
   }, []);
 
-  // maathi ko tab bar — Dashboard ra Profile matra, Checkout hataisakyo
+  
   const tabs = [
     { label: "Dashboard", action: () => navigate("/homepage") },
     { label: "Profile", action: () => navigate("/customer-dashboard?tab=profile") },
   ];
 
-  // logout garne — token clear garera login page ma pathaune
+  
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
@@ -117,13 +117,13 @@ function Home() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#0A0D18] text-slate-100">
-      {/* background glow ra grid pattern, dark theme ma */}
+      
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.18),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(217,119,6,0.12),transparent_34%)]" />
       <div className="absolute inset-0 opacity-15 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:72px_72px]" />
 
       <div className="relative mx-auto max-w-6xl px-4 py-6 sm:px-8">
 
-        {/* Tab bar — maathi patti Dashboard/Profile switch garna */}
+        
         <div className="mb-6 flex items-center gap-6 border-b border-slate-800 pb-3">
           {tabs.map((tab) => (
             <button
@@ -147,7 +147,7 @@ function Home() {
             Nexora
           </span>
 
-          {/* search bar — text search + visual search camera icon ekै thau ma */}
+          
           <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2 rounded-full border border-slate-700 bg-[#111827] px-5 py-3">
             <svg className="h-5 w-5 flex-shrink-0 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
@@ -178,7 +178,7 @@ function Home() {
             </button>
           </form>
 
-          {/* Orders button — customer dashboard ko orders tab ma pathaune */}
+          
           <button
             onClick={() => navigate('/customer-dashboard?tab=orders')}
             className="flex flex-shrink-0 items-center gap-1.5 rounded-full border border-slate-700 bg-[#111827] px-4 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white"
@@ -189,7 +189,7 @@ function Home() {
             Orders
           </button>
 
-          {/* Cart button — customer dashboard ko cart tab ma pathaune */}
+          
           <button
             onClick={() => navigate('/customer-dashboard?tab=cart')}
             className="flex flex-shrink-0 items-center gap-1.5 rounded-full border border-slate-700 bg-[#111827] px-4 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white"
@@ -200,7 +200,7 @@ function Home() {
             Cart
           </button>
 
-          {/* Account avatar + dropdown menu */}
+          
           <div className="relative flex-shrink-0" ref={accountMenuRef}>
             <button
               onClick={() => setShowAccountMenu((s) => !s)}
@@ -223,7 +223,7 @@ function Home() {
                 >
                   Preferences
                 </button>
-                {/* yaha bata tala Help/Policies/Feedback — popup dekhaune, naya page haina */}
+                
                 <button
                   onClick={() => { setShowAccountMenu(false); setInfoModal('help'); }}
                   className="block w-full px-4 py-2.5 text-left text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white border-t border-slate-700/60"
@@ -263,7 +263,7 @@ function Home() {
 
         <div className="mt-10">
           {loading ? (
-            // loading bela skeleton placeholder cards dekhaune
+            
             <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div
@@ -286,12 +286,12 @@ function Home() {
         </div>
       </div>
 
-      {/* Help/Policies/Feedback popup — jun click garyo tyeschai content dekhaune */}
+      
       {infoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setInfoModal(null)}>
           <div
             className="w-full max-w-md rounded-2xl border border-slate-700 bg-[#111827] p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()} // andar click garda popup band nahos
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-white capitalize">{infoModal}</h3>

@@ -23,8 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 KHALTI_SECRET_KEY = os.environ.get("KHALTI_SECRET_KEY", "")
 KHALTI_BASE_URL = os.environ.get("KHALTI_BASE_URL", "https://dev.khalti.com/api/v2")
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+
 
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
@@ -55,7 +54,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',   # add this line
+    'corsheaders.middleware.CorsMiddleware',   
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -90,8 +89,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'electro_backend.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+
 
 
 
@@ -110,8 +108,7 @@ DATABASES = {
 
 
 
-# Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -129,8 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
+
 
 LANGUAGE_CODE = 'en-us'
 
@@ -141,8 +137,7 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
+
 
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import deviceImage from "./assets/Mobile.webp"; // background photo ko lagi
+import deviceImage from "./assets/Mobile.webp"; 
 import { useNavigate } from "react-router-dom";
 
 const API_BASE = 'http://127.0.0.1:8000/api'
 const MEDIA_BASE = 'http://127.0.0.1:8000'
 
-// input field component — email, password, name sabai yehi use garcha
+
 function FloatingField({ id, label, type = 'text', value, onChange, autoComplete }) {
   return (
     <label className="block">
@@ -23,12 +23,12 @@ function FloatingField({ id, label, type = 'text', value, onChange, autoComplete
   )
 }
 
-// left side branding — NEXORA title, tagline, spec badges, stats, ra sliding product card
+
 function LeftSection() {
   const [carouselProducts, setCarouselProducts] = useState([]);
   const [carouselIndex, setCarouselIndex] = useState(0);
 
-  // featured products backend bata lyaune, carousel ko lagi
+  
   useEffect(() => {
     axios
       .get(`${API_BASE}/catalog/products/featured/`)
@@ -36,7 +36,7 @@ function LeftSection() {
       .catch(() => {});
   }, []);
 
-  // 2.5 second ma euta pataka automatically arko product ma slide garne
+  
   useEffect(() => {
     if (carouselProducts.length === 0) return;
     const timer = setInterval(() => {
@@ -191,8 +191,8 @@ function LeftSection() {
 
 function Auth() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState('signup') // signup ki signin, default signup
-  const [role, setRole] = useState('customer') // customer ki seller
+  const [mode, setMode] = useState('signup') 
+  const [role, setRole] = useState('customer') 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({
@@ -203,7 +203,7 @@ function Auth() {
 
   const isSignIn = mode === 'signin'
 
-  // form submit garda backend call garne — login ki register, mode anusaar
+  
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
@@ -219,7 +219,7 @@ function Auth() {
         localStorage.setItem('access_token', response.data.access)
         localStorage.setItem('refresh_token', response.data.refresh)
 
-        // role check garera kaha redirect garne decide garne
+        
         const who = await axios.get(`${API_BASE}/auth/whoami/`, {
           headers: { Authorization: `Bearer ${response.data.access}` },
         })
@@ -247,7 +247,7 @@ function Auth() {
         setError(`Welcome, ${form.name || 'there'}! Your account is ready. Please sign in.`)
       }
     } catch (err) {
-      // backend bata aayeko error message dekhaune
+      
       const data = err.response?.data
       const message = data?.detail || (data && Object.values(data)[0]) || 'Something went wrong. Please try again.'
       setError(Array.isArray(message) ? message[0] : String(message))
@@ -256,7 +256,7 @@ function Auth() {
     }
   }
 
-  // form ko kunai field update garne generic function
+  
   const updateField = (field) => (event) => {
     setForm((current) => ({ ...current, [field]: event.target.value }))
   }
@@ -270,27 +270,27 @@ function Auth() {
 
   return (
     <main className="relative min-h-screen overflow-hidden text-slate-100">
-      {/* photo maathi dark navy overlay halera theme sanga blend garne */}
+      {}
       <div className="absolute inset-0">
         <img
           src={deviceImage}
           alt="Smartphone and laptop showcase"
           className="h-full w-full object-cover object-[center_24%]"
         />
-        {/* dark navy gradient overlay — photo lai dark theme sanga match garaune */}
+        {/**/}
         <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(10,13,24,0.92)_0%,rgba(17,24,39,0.85)_45%,rgba(30,41,59,0.65)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.18),transparent_35%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(217,119,6,0.15),transparent_40%)]" />
       </div>
 
-      {/* subtle grid pattern, dark theme ma */}
+      
       <div className="absolute inset-0 opacity-15 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:72px_72px]" />
 
       <div className="relative grid min-h-screen lg:grid-cols-[1.12fr_0.88fr]">
-        {/* left side — animated NEXORA branding, badges, stats, sliding product card */}
+        {/*animated NEXORA branding, badges, stats, sliding product card */}
         <LeftSection />
 
-        {/* form card — dark background, photo ko upar */}
+        
         <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 lg:-translate-x-8 lg:px-8 lg:py-0">
           <div className="mx-auto w-full max-w-[380px] rounded-[26px] border border-slate-700/60 bg-[#111827]/70 p-3 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 sm:p-4">
             <div className="rounded-[20px] border border-slate-700/50 bg-[#111827]/85 p-4 backdrop-blur-lg transition-all duration-300 sm:p-5">
@@ -303,7 +303,7 @@ function Auth() {
                     <p className="text-sm font-semibold text-white">Nexora</p>
                   </div>
                 </div>
-                {/* Sign In / Create Account toggle */}
+                
                 <div className="flex rounded-full border border-slate-700 bg-[#1A1D2E] p-1">
                   <button
                     type="button"
@@ -336,7 +336,7 @@ function Auth() {
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* signup bela matra dekhine: role toggle + name field */}
+                    
                     {!isSignIn && (
                       <>
                         <div className="flex rounded-full border border-slate-700 bg-[#1A1D2E] p-1">
@@ -388,7 +388,7 @@ function Auth() {
                       autoComplete={isSignIn ? 'current-password' : 'new-password'}
                     />
 
-                    {/* error/success message, color le differentiate garne */}
+                    
                     {error && (
                       <p className={`text-sm font-medium ${isSuccessMessage ? 'text-green-400' : 'text-red-400'}`}>
                         {error}
@@ -421,7 +421,7 @@ function Auth() {
   )
 }
 
-// Nexora logo, blue-amber gradient sanga
+
 function Logo() {
   return (
     <svg

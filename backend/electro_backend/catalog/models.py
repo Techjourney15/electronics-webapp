@@ -1,4 +1,4 @@
-# Create your models here.
+
 from django.db import models
 from accounts.models import Seller
 from django.conf import settings
@@ -77,7 +77,7 @@ class CartItem(models.Model):
         return f"{self.quantity} x {self.product.product_name}"
 
 
-# models.py — add this field to your existing Order model
+
 class Order(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending Payment'),

@@ -1,46 +1,3 @@
-"""
-Recommender Accuracy Evaluation (Model vs Random Baseline)
-=============================================================
-
-Purpose (for defense):
------------------------
-This does NOT report raw Precision/Recall/F1@5 the way your very first
-run did. That run's Recall@5 and F1 were structurally near-zero because
-the relevant-item pool per query was huge (~285 items) relative to k=5
--- recall@5 is mathematically capped near 3.5% no matter how good the
-model is (10/285). Reporting that number alone makes a working system
-look broken.
-
-Instead this script reports metrics that are meaningful at small k, AND
-puts them next to a random-recommender baseline computed under the
-EXACT SAME relevance definition -- so "our precision is 0.5x" becomes
-"our precision is Nx better than picking recommendations at random,"
-which is the number a defense panel can actually interpret.
-
-Metrics reported:
-------------------
-- Precision@5      -- of the top-5 recommended, how many are relevant
-- Hit Rate@5        -- fraction of queries with >=1 relevant item in top-5
-- MRR                -- mean reciprocal rank of the FIRST relevant item
-                        (found by searching the full ranking, not just
-                        top-5, so it's not artificially capped by k)
-- NDCG@5             -- ranking-quality metric, rewards relevant items
-                        appearing EARLIER in the top-5, not just present
-- Recall@5 is INTENTIONALLY reported separately with its own
-  theoretical max-possible-recall reference bar, so it's clear the low
-  raw number is a structural artifact of relevant-set size vs k, not a
-  measure of model quality. See recommendation_pipeline discussion.
-
-Ground truth: relevance.build_proxy_relevance() -- the SAME function
-used by search_weights() and sensitivity_analysis.py, so every script
-in this project is judged against one consistent definition.
-
-Output:
--------
-- plots/accuracy_vs_random.png  (grouped bar chart: Model vs Random)
-- plots/recall_context.png       (Recall@5 vs its theoretical ceiling)
-- Printed summary numbers
-"""
 
 import os
 import numpy as np
@@ -64,9 +21,7 @@ from recommendation_pipeline import (
 )
 from relevance import build_proxy_relevance
 
-# ----------------------------------------------------------------------
-# CONFIG
-# ----------------------------------------------------------------------
+
 SAMPLE_SIZE = 500     # query + candidate pool size (kept modest -- relevance
                        # labeling is O(n^2), same constraint as search_weights)
 K = 5
@@ -89,9 +44,6 @@ def stratified_sample_idx(df, sample_size, random_state):
     return idx
 
 
-# ----------------------------------------------------------------------
-# Per-query metrics for a given similarity/ranking matrix
-# ----------------------------------------------------------------------
 def evaluate_ranking(sim_matrix: np.ndarray, label_matrix: np.ndarray, k: int = K):
     n = sim_matrix.shape[0]
     precisions, hit_rates, rr, ndcgs = [], [], [], []
@@ -102,7 +54,7 @@ def evaluate_ranking(sim_matrix: np.ndarray, label_matrix: np.ndarray, k: int = 
         relevant[i] = -1  # exclude self
         total_relevant = int((relevant == 1).sum())
         if total_relevant == 0:
-            continue  # undefined precision/recall for this query, skip
+            continue 
 
         order = np.argsort(-sim_matrix[i])
         order = order[order != i]
@@ -149,9 +101,9 @@ def random_baseline(n_items: int, label_matrix: np.ndarray, k: int, n_trials: in
     return {key: float(np.mean([r[key] for r in trial_results])) for key in keys}
 
 
-# ----------------------------------------------------------------------
+
 # Plots
-# ----------------------------------------------------------------------
+
 def plot_accuracy_vs_random(model_metrics, random_metrics, out_path):
     labels = ["Precision@5", "Hit Rate@5", "MRR", "NDCG@5"]
     keys = ["precision_at_k", "hit_rate_at_k", "mrr", "ndcg_at_k"]
@@ -203,9 +155,8 @@ def plot_recall_context(model_metrics, out_path):
     plt.close(fig)
 
 
-# ----------------------------------------------------------------------
 # MAIN
-# ----------------------------------------------------------------------
+
 def main():
     df = load_product_database()
     sample_idx = stratified_sample_idx(df, SAMPLE_SIZE, RANDOM_STATE)

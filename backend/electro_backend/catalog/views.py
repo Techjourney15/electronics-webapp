@@ -423,7 +423,7 @@ def visual_search(request):
     return Response({'results': serializer.data})
 
 
-# ---------- CART ----------
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

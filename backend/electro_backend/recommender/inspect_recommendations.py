@@ -23,8 +23,7 @@ def show_similar(row_idx, top_n=5):
     for idx in top_indices:
         print(f"  {product_names[idx]:<55} score={scores[idx]:.4f}")
 
-# Pick a few real products across categories/price ranges to spot-check
-# We'll search by partial name match so you don't need to know exact row indices
+
 
 def find_and_show(search_term, top_n=5):
     matches = [i for i, name in enumerate(product_names) if search_term.lower() in name.lower()]

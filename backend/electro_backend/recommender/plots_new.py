@@ -29,10 +29,6 @@ from recommendation_pipeline import (
     TEXT_COL,
 )
 
-# ============================================================
-# Configuration
-# ============================================================
-
 OUT_DIR = "plots"
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -49,9 +45,7 @@ plt.rcParams.update({
     "axes.labelsize": 11,
 })
 
-# ============================================================
-# Helper
-# ============================================================
+
 
 def save_plot(fig, filename):
     """
@@ -63,9 +57,7 @@ def save_plot(fig, filename):
     plt.close(fig)
 
     print(f"[Saved] {path}")
-# ============================================================
-# Evaluation Functions
-# ============================================================
+
 
 def build_keyword_sets(df):
     """
@@ -91,7 +83,7 @@ def build_keyword_sets(df):
     return keyword_sets
 
 
-# ------------------------------------------------------------
+
 
 def evaluate_recommendations(
         df,
@@ -272,9 +264,7 @@ def build_small_confusion_matrix(
         "FN": FN,
         "TN": TN
     }  
-# ============================================================
-# Plot 1 : Category Match Histogram
-# ============================================================
+
 
 def plot_category_match_accuracy(match_rates):
 
@@ -307,9 +297,7 @@ def plot_category_match_accuracy(match_rates):
     return mean
 
 
-# ============================================================
-# Plot 2 : Similarity vs Random
-# ============================================================
+
 
 def plot_similarity_vs_random(rec_sims, random_sims):
 
@@ -352,9 +340,7 @@ def plot_similarity_vs_random(rec_sims, random_sims):
     return t,p
 
 
-# ============================================================
-# Plot 3 : PCA
-# ============================================================
+
 
 def plot_pca(final_vectors,df):
 
@@ -405,9 +391,7 @@ def plot_pca(final_vectors,df):
     save_plot(fig,"pca_clusters.png")
 
 
-# ============================================================
-# Plot 4 : Similarity Heatmap
-# ============================================================
+
 
 def plot_similarity_heatmap(sim_matrix):
 
@@ -442,9 +426,7 @@ def plot_similarity_heatmap(sim_matrix):
     ax.set_yticks([])
 
     save_plot(fig,"similarity_heatmap.png")
-# ============================================================
-# Plot 5 : Recommender Evaluation Metrics
-# ============================================================
+
 
 def plot_recommender_metrics(metrics):
 
@@ -493,9 +475,7 @@ def plot_recommender_metrics(metrics):
         )
 
     save_plot(fig,"recommender_metrics.png")
-# ============================================================
-# Plot 6 : Small Confusion Matrix
-# ============================================================
+
 
 def plot_confusion_matrix(cm):
 
@@ -570,9 +550,7 @@ def plot_confusion_matrix(cm):
         "accuracy": accuracy,
         "f1": f1
     }
-# ============================================================
-# Main
-# ============================================================
+
 
 def main():
 
@@ -584,9 +562,7 @@ def main():
 
     print(f"Total products : {len(df)}")
 
-    # --------------------------------------------------------
-    # Train / Test Split
-    # --------------------------------------------------------
+    
 
     train_df, test_df = train_test_split(
         df,
@@ -600,9 +576,7 @@ def main():
     print(f"Training products : {len(train_df)}")
     print(f"Testing products  : {len(test_df)}")
 
-    # --------------------------------------------------------
-    # Build vectors
-    # --------------------------------------------------------
+   
 
     print("\nBuilding text vectors...")
     text_vectors = build_text_vector(df)
@@ -628,9 +602,7 @@ def main():
     print(f"Category  : {weights[1]:.3f}")
     print(f"Specs     : {weights[2]:.3f}")
 
-    # --------------------------------------------------------
-    # Final vectors
-    # --------------------------------------------------------
+    
 
     final_vectors = build_final_vectors(
         text_vectors,
@@ -645,15 +617,11 @@ def main():
         final_vectors
     )
 
-    # --------------------------------------------------------
-    # Build keyword sets
-    # --------------------------------------------------------
+    
 
     keyword_sets = build_keyword_sets(df)
 
-    # --------------------------------------------------------
-    # Category Match
-    # --------------------------------------------------------
+    
 
     print("\nEvaluating category match...")
 
@@ -684,9 +652,7 @@ def main():
 
     match_rates = np.array(match_rates)
 
-    # --------------------------------------------------------
-    # Similarity vs Random
-    # --------------------------------------------------------
+    
 
     print("Evaluating cosine similarity...")
 
@@ -717,9 +683,7 @@ def main():
     rec_sims = np.array(rec_sims)
     random_sims = np.array(random_sims)
 
-    # --------------------------------------------------------
-    # Recommendation Metrics
-    # --------------------------------------------------------
+    
 
     print("Computing recommender metrics...")
 
@@ -731,9 +695,7 @@ def main():
         k=TOP_K
     )
 
-    # --------------------------------------------------------
-    # Small Confusion Matrix
-    # --------------------------------------------------------
+   
 
     print("Building illustrative confusion matrix...")
 
@@ -748,9 +710,7 @@ def main():
 
     cm_metrics = plot_confusion_matrix(cm)
 
-    # --------------------------------------------------------
-    # Generate plots
-    # --------------------------------------------------------
+   
 
     print("\nGenerating plots...")
 
@@ -776,9 +736,7 @@ def main():
         metrics
     )
 
-    # --------------------------------------------------------
-    # Save Summary
-    # --------------------------------------------------------
+    
 
     summary = {
 
@@ -852,9 +810,7 @@ def main():
     print("=" * 60)
 
 
-# ============================================================
-# Run
-# ============================================================
+
 
 if __name__ == "__main__":
 
